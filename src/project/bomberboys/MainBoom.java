@@ -15,7 +15,7 @@ public class MainBoom {
 	
 	private JFrame menuWindow;
 	private JPanel mainOptionPanel, serverPanel, serverWaitPanel, clientPanel, clientWaitPanel;
-	private JTextField playerCountTF, roundCountTF, ipTF, portTF;
+	private JTextField playerCountTF, roundCountTF, ipTF, portTF, username;
 	private boolean server;
 	
 	public MainBoom() {
@@ -121,6 +121,9 @@ public class MainBoom {
 		mainOptionPanel.setLayout(new FlowLayout());
 		mainOptionPanel.add(createButton("Start as server", "menu", this, true));
 		mainOptionPanel.add(createButton("Start as client", "menu", this, true));
+		username = new JTextField(20);
+		username.setText("Anonymous");
+		mainOptionPanel.add(username);
 //		mainOptionPanel.add(createButton("Settings", "menu", this, true));
 	}
 	
@@ -161,6 +164,10 @@ public class MainBoom {
 	
 	public String getIPTF() {
 		return ipTF.getText();
+	}
+	
+	public String getUsername() {
+		return username.getText();
 	}
 	
 	public static void main(String args[]) {
