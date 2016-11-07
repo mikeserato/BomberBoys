@@ -1,6 +1,7 @@
 package project.bomberboys.sockets;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import project.bomberboys.MainBoom;
+import project.bomberboys.game.Game;
 
 public class Client implements Runnable{
 
@@ -29,6 +31,7 @@ public class Client implements Runnable{
 	private JTextArea chatArea;
 	private JTextField chatField;
 	private String username;
+	private Game game;
 	
 	public Client(String ip, int port, MainBoom main) {
 		this.ip = ip;
@@ -36,23 +39,26 @@ public class Client implements Runnable{
 		this.username = main.getUsername();
 		
 		gameWindow = new JFrame("Boom! Client - User: " + this.username);
-		gameWindow.setSize(400, 300);
+//		gameWindow.setSize(400, 300);
 		gameWindow.setResizable(false);
 		gameWindow.setLayout(new BorderLayout());
 		
 		chatPanel = new JPanel(new BorderLayout());
+		chatPanel.setSize(new Dimension(400, 400));
 		chatArea = new JTextArea();
 		chatArea.setEditable(false);
 		chatPanel.add(new JScrollPane(chatArea), BorderLayout.CENTER);
 		
-		chatField = new JTextField(100);
+		chatField = new JTextField(20);
 		chatField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				broadcast(e.getActionCommand());
 				String message = e.getActionCommand();
-				showMessage(message, true);
-				sendMessage(message);
-				chatField.setText("");
+				if(!message.equals("")) {
+					showMessage(message, true);
+					sendMessage(message);
+					chatField.setText("");
+				}
+				game.requestFocusInWindow();
 			}
 		});
 		
@@ -60,7 +66,10 @@ public class Client implements Runnable{
 		gameWindow.add(chatPanel, BorderLayout.WEST);
 		
 		gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		game = new Game(gameWindow, username, chatField);
+		gameWindow.add(game, BorderLayout.CENTER);
 		main.getMenuWindow().setVisible(false);
+		gameWindow.pack();
 		
 		
 		display();
@@ -95,6 +104,8 @@ public class Client implements Runnable{
 				sender = packet.sender();
 				if(message.equals("QUIT")) {
 					
+				} else if(message.equals("::Game Start::")) {
+					this.game.start();
 				} else {
 					showMessage(sender + ": " + message, false);
 //					server.broadcast(message);
@@ -125,7 +136,6 @@ public class Client implements Runnable{
 	}
 	
 	public void sendMessage(String message) {
-//		showMessage(message);
 		try {
 			MessagePacket packet = new MessagePacket(message, username);
 			output.writeObject(packet);
@@ -144,4 +154,11 @@ public class Client implements Runnable{
 		input = new ObjectInputStream(socket.getInputStream());
 	}
 	
+	public String getUsername() {
+		return this.username;
+	}
+	
+	public void clearChatField() {
+		this.chatField.setText("");
+	}
 }

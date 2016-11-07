@@ -1,6 +1,7 @@
 package project.bomberboys.sockets;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.ServerSocket;
@@ -14,6 +15,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import project.bomberboys.MainBoom;
+import project.bomberboys.game.Game;
 
 public class Server {
 
@@ -24,6 +26,7 @@ public class Server {
 	private JTextArea chatArea;
 	private JTextField chatField;
 	private String username;
+	private Game game;
 	
 	public Server(int playerCount, int roundCount, int port, MainBoom main) {
 		this.playerCount = playerCount - 1;
@@ -34,22 +37,26 @@ public class Server {
 		
 		
 		gameWindow = new JFrame("Boom! Server - User: " + this.username);
-		gameWindow.setSize(400, 300);
+//		gameWindow.setSize(new Dimension(800, 400));
 		gameWindow.setResizable(false);
 		gameWindow.setLayout(new BorderLayout());
 		
 		chatPanel = new JPanel(new BorderLayout());
+		chatPanel.setSize(new Dimension(400, 400));
 		chatArea = new JTextArea();
 		chatArea.setEditable(false);
 		chatPanel.add(new JScrollPane(chatArea), BorderLayout.CENTER);
 		
-		chatField = new JTextField(100);
+		chatField = new JTextField(20);
 		chatField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String message = e.getActionCommand();
-				showMessage(message, true);
-				broadcast(message, username);
-				chatField.setText("");
+				if(!message.equals("")) {
+					showMessage(message, true);
+					broadcast(message, username);
+					chatField.setText("");
+				}
+				game.requestFocusInWindow();
 			}
 		});
 		
@@ -57,8 +64,10 @@ public class Server {
 		gameWindow.add(chatPanel, BorderLayout.WEST);
 		
 		gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		game = new Game(gameWindow, username, chatField);
+//		gameWindow.add(game, BorderLayout.CENTER);
 		main.getMenuWindow().setVisible(false);
-		
+		gameWindow.pack();
 		
 		display();
 		start();
@@ -100,8 +109,10 @@ public class Server {
 			
 		}
 		
-		for(clientsAccepted = 0; ;) {
+		
+		for(clientsAccepted = 0; clientsAccepted < playerCount; clientsAccepted++) {
 			try{
+				System.out.println("Waiting for connection");
 				socket = serverSocket.accept();
 				System.out.println("Accepted connection " + (clientsAccepted + 1));
 			} catch(Exception e) {
@@ -109,12 +120,19 @@ public class Server {
 			}
 			servers[clientsAccepted] = new EchoServer(socket, this);
 			servers[clientsAccepted].start();
-			clientsAccepted++;
-			if(clientsAccepted >= playerCount) {
-				break;
-			}
 		}
 		System.out.println("All players are connected");
+		
+		this.broadcast("::Game Start::", username);
+		game.start();
+	}
+	
+	public String getUsername() {
+		return this.username;
+	}
+	
+	public void clearChatField() {
+		this.chatField.setText("");
 	}
 
 }
