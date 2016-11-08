@@ -5,26 +5,35 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferStrategy;
 
 import javax.swing.JFrame;
-import javax.swing.JTextField;
 
 import project.bomberboys.game.actors.Player;
 import project.bomberboys.listeners.GameKeyListener;
+import project.bomberboys.sockets.ChatSocket;
+import project.bomberboys.window.Camera;
 
 
 public class Game extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
 	
-	private final int HEIGHT = 400, WIDTH = 400, OBJECTSIZE = 12;
+	private final int HEIGHT = 400, WIDTH = 400, OBJECTSIZE = 12, scale = 3;
 	private boolean running = false;
 	private Player player;
 	private JFrame gameFrame;
 	private String frameTitle;
+	private ChatSocket socket;
+	private Camera camera;
+	private final int boardHeight = 5, boardWidth = 5;
+	private char[][] gameBoard;
+	private GameObject[][] objectBoard;
+	private Field field;
 
-	public Game(JFrame gameFrame, String user, JTextField chatField) {
-		this.gameFrame = gameFrame;
+	public Game(ChatSocket socket) {
+		this.socket = socket;
+		this.gameFrame = socket.getGameWindow();
 		this.frameTitle = gameFrame.getTitle();
 		Container c = this.gameFrame.getContentPane();
 //		this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -33,7 +42,9 @@ public class Game extends Canvas implements Runnable {
 //		this.gameFrame.add(this, BorderLayout.CENTER);
 		System.out.println("Created game instance");
 //		start();
-		player = new Player(this, user, WIDTH/2, HEIGHT/2, chatField);
+		player = new Player(this, 1, 1, socket);
+		camera = new Camera(0, 0, this);
+		field = new Field(this);
 	}
 	
 	public void start() {
@@ -48,6 +59,8 @@ public class Game extends Canvas implements Runnable {
 		if(!running) return;
 		else {
 			running = false;
+			gameFrame.dispose();
+			this.socket.getMain().display();
 		}
 	}
 	
@@ -83,16 +96,19 @@ public class Game extends Canvas implements Runnable {
 				updates = 0;
 			}
 		}
-		this.stop();
+//		this.stop();
 	}
 	
 	/** GAME ENGINE METHODS **/
 	public void update() {
 		//update game objects here
+		field.update();
 		player.update();
+		camera.update(player);
 	}
 	
 	public void render() {
+//		Toolkit.getDefaultToolkit().sync();
 		BufferStrategy gameBuffer = this.getBufferStrategy();
 		
 		if(gameBuffer == null) {
@@ -101,13 +117,20 @@ public class Game extends Canvas implements Runnable {
 		}
 		
 		Graphics gameGraphics = gameBuffer.getDrawGraphics(); //to be passed to objects for drawing
+		Graphics2D gameGraphics2D = (Graphics2D) gameGraphics;
 		
 		/*
 		 * Place all rendering stuff below
 		 */
-		gameGraphics.setColor(Color.GRAY);
+		gameGraphics.setColor(Color.BLACK);
 		gameGraphics.fillRect(0, 0, WIDTH, HEIGHT);
+		
+		gameGraphics2D.translate(camera.getX(), camera.getY());
+		
+		field.render(gameGraphics);
 		player.render(gameGraphics);
+		
+		gameGraphics2D.translate(-camera.getX(), -camera.getY());
 		/*
 		 * Place all rendering stuff above
 		 */
@@ -115,6 +138,7 @@ public class Game extends Canvas implements Runnable {
 		gameGraphics.dispose();
 		gameBuffer.show();
 	}
+	/** GAME ENGINE METHODS **/
 	
 	public int getHeight() {
 		return this.HEIGHT;
@@ -124,11 +148,32 @@ public class Game extends Canvas implements Runnable {
 		return this.WIDTH;
 	}
 	
+	public int getScale() {
+		return this.scale;
+	}
+	
 	public int getObjectSize() {
 		return this.OBJECTSIZE;
 	}
 	
+	public int getBoardHeight() {
+		return this.boardHeight;
+	}
 	
+	public int getBoardWidth() {
+		return this.boardWidth;
+	}
 	
+	public char[][] getGameBoard()  {
+		return this.gameBoard;
+	}
+	
+	public GameObject[][] getObjectBoard() {
+		return this.objectBoard;
+	}
+	
+	public Field getField() {
+		return this.field;
+	}
 
 }

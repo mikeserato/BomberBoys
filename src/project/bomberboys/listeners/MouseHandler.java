@@ -44,19 +44,11 @@ public class MouseHandler extends MouseAdapter{
 					break;
 				//Server panel case
 				case "Start!":
-					cl.show(c, "serverWaitPanel");
-//					long wait = System.currentTimeMillis();
-//					for(; System.currentTimeMillis() - wait >= 1000; ) {
-//						if(System.currentTimeMillis() - wait >= 900) {
-							new Server(main.getPlayerCountTF(), main.getRoundCountTF(), main.getPortTF(), main);
-//							break;
-//						}
-//					}
+					new Server(main.getPlayerCountTF(), main.getRoundCountTF(), main.getPortTF(), main);
 					break;
 				
 				//Client panel case
 				case "Connect":
-					cl.show(c, "clientWaitPanel");
 					new Client(main.getIPTF(), main.getPortTF(), main);
 					break;
 				}

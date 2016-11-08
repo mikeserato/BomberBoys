@@ -1,7 +1,6 @@
 package project.bomberboys.sockets;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.ServerSocket;
@@ -17,18 +16,13 @@ import javax.swing.SwingUtilities;
 import project.bomberboys.MainBoom;
 import project.bomberboys.game.Game;
 
-public class Server {
+public class Server extends ChatSocket {
 
 	private int clientsAccepted = 0, playerCount, port;
 	private EchoServer[] servers;
-	private JFrame gameWindow;
-	private JPanel chatPanel;
-	private JTextArea chatArea;
-	private JTextField chatField;
-	private String username;
-	private Game game;
 	
 	public Server(int playerCount, int roundCount, int port, MainBoom main) {
+		super(main);
 		this.playerCount = playerCount - 1;
 		servers = new EchoServer[playerCount - 1];
 //		this.roundCount = roundCount;
@@ -42,7 +36,6 @@ public class Server {
 		gameWindow.setLayout(new BorderLayout());
 		
 		chatPanel = new JPanel(new BorderLayout());
-		chatPanel.setSize(new Dimension(400, 400));
 		chatArea = new JTextArea();
 		chatArea.setEditable(false);
 		chatPanel.add(new JScrollPane(chatArea), BorderLayout.CENTER);
@@ -64,8 +57,7 @@ public class Server {
 		gameWindow.add(chatPanel, BorderLayout.WEST);
 		
 		gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		game = new Game(gameWindow, username, chatField);
-//		gameWindow.add(game, BorderLayout.CENTER);
+		game = new Game(this);
 		main.getMenuWindow().setVisible(false);
 		gameWindow.pack();
 		

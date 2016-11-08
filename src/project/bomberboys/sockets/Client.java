@@ -1,7 +1,6 @@
 package project.bomberboys.sockets;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -20,20 +19,15 @@ import javax.swing.SwingUtilities;
 import project.bomberboys.MainBoom;
 import project.bomberboys.game.Game;
 
-public class Client implements Runnable{
+public class Client extends ChatSocket implements Runnable{
 
 	private String ip; private int port;
 	private Socket socket;
 	private ObjectInputStream input;
 	private ObjectOutputStream output;
-	private JFrame gameWindow;
-	private JPanel chatPanel;
-	private JTextArea chatArea;
-	private JTextField chatField;
-	private String username;
-	private Game game;
 	
 	public Client(String ip, int port, MainBoom main) {
+		super(main);
 		this.ip = ip;
 		this.port = port;
 		this.username = main.getUsername();
@@ -44,7 +38,6 @@ public class Client implements Runnable{
 		gameWindow.setLayout(new BorderLayout());
 		
 		chatPanel = new JPanel(new BorderLayout());
-		chatPanel.setSize(new Dimension(400, 400));
 		chatArea = new JTextArea();
 		chatArea.setEditable(false);
 		chatPanel.add(new JScrollPane(chatArea), BorderLayout.CENTER);
@@ -66,11 +59,9 @@ public class Client implements Runnable{
 		gameWindow.add(chatPanel, BorderLayout.WEST);
 		
 		gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		game = new Game(gameWindow, username, chatField);
-		gameWindow.add(game, BorderLayout.CENTER);
+		game = new Game(this);
 		main.getMenuWindow().setVisible(false);
 		gameWindow.pack();
-		
 		
 		display();
 		start();
