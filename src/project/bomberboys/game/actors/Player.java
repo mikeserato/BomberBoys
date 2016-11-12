@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.LinkedList;
 
 import javax.swing.JTextField;
@@ -12,17 +14,32 @@ import project.bomberboys.game.Game;
 import project.bomberboys.game.GameObject;
 import project.bomberboys.game.blocks.Block;
 import project.bomberboys.sockets.ChatSocket;
+import project.bomberboys.sockets.Multicast;
+import project.bomberboys.sockets.ObjectPacket;
 
-public class Player extends GameObject{
+public class Player extends GameObject implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
 	private boolean chatActive;
 	private JTextField chatField;
+	private Multicast udpThread;
+	
+	private ObjectPacket obj;
 
 	public Player(Game game, float x, float y, ChatSocket socket) {
 		super(game, socket.getUsername(), x, y);
 		this.speed = 0.1f;
 		this.chatActive = false;
 		this.chatField = socket.getChatField();
+		
+		obj = new ObjectPacket(x, y);
+		
+		try {
+			this.udpThread = new Multicast(obj);
+			System.out.println("UDP Thread initialized");
+		} catch (IOException e) {
+
+		}
 	}
 	
 	public void stop(int k) {
@@ -82,6 +99,13 @@ public class Player extends GameObject{
 		y += velY;
 		
 		collide();
+		obj.update(x, y);
+		
+		try {
+			udpThread.broadcast();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void collide() {

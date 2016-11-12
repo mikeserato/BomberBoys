@@ -1,21 +1,23 @@
 package project.bomberboys.sockets;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
-//Still not connected to other parts of the game
 
-public class Multicast implements Runnable{
+public class Multicast implements Runnable {
 	
 	MulticastSocket socket;
 	int port = 4445;
 	InetAddress group = InetAddress.getByName("225.0.0.0");
-	String object;
+	ObjectPacket object;
 
-	// Object still a placeholder, should be the player object to be broadcasted 
-	public Multicast (String object) throws IOException{
+	public Multicast (ObjectPacket object) throws IOException{
 		
 		socket = new MulticastSocket(port);
 		socket.joinGroup(group);
@@ -33,26 +35,48 @@ public class Multicast implements Runnable{
 	}
 	
 	public void broadcast() throws IOException {
-		DatagramPacket broadcast = new DatagramPacket(object.getBytes(), object.length(), group, port);
-		socket.send(broadcast);
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream(6400);
+		final ObjectOutputStream oos = new ObjectOutputStream(baos);
+		oos.writeObject(this.object);
+		final byte[] data = baos.toByteArray();
+
+		final DatagramPacket packet = new DatagramPacket(data, data.length, group, port);
+		socket.send(packet);
+
 	}
 	
-	public void receive() throws IOException {
-		byte buffer[] = new byte[1000];
+	public ObjectPacket receive() throws IOException {
+		ObjectPacket ObjectPacket = null;
+		
+		byte buffer[] = new byte[6400];
 		DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 		socket.receive(packet);
+		
+		final ByteArrayInputStream bais = new ByteArrayInputStream(buffer);
+		final ObjectInputStream ois = new ObjectInputStream(bais);
+		
+		try {
+			ObjectPacket = (ObjectPacket)ois.readObject();
+			
+		} catch (ClassNotFoundException e) {
+
+		}
+		
+		return(ObjectPacket);
+		
 	}
 	
-	public void update(String object) {
+	public void update(ObjectPacket object) {
 		this.object = object;
 	}
 
 	public void run() {
 		while(true){
 			try {
-				broadcast();
-				receive();
-				//updateGameState(); update game state after receiving packet
+				ObjectPacket update = receive();
+				update.getX();
+				update.getX();
+				// Place Update on Map
 			} catch (IOException e) {
 	
 			}
