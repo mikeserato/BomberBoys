@@ -21,7 +21,7 @@ import project.bomberboys.game.Game;
 
 public class Client extends ChatSocket implements Runnable{
 
-	private String ip; private int port;
+	private String ip; private int port, index;
 	private Socket socket;
 	private ObjectInputStream input;
 	private ObjectOutputStream output;
@@ -54,7 +54,7 @@ public class Client extends ChatSocket implements Runnable{
 				game.requestFocusInWindow();
 			}
 		});
-		
+		chatField.setEditable(false);
 		chatPanel.add(chatField, BorderLayout.SOUTH);
 		gameWindow.add(chatPanel, BorderLayout.WEST);
 		
@@ -95,8 +95,18 @@ public class Client extends ChatSocket implements Runnable{
 				sender = packet.sender();
 				if(message.equals("QUIT")) {
 					
-				} else if(message.equals("::Game Start::")) {
+				} else if(message.equals("::Game Start::") && sender.equals("")) {
 					this.game.start();
+					chatField.setEditable(true);
+					showMessage(message, false);
+				} else if(message.contains("::Create Players::") && sender.equals("")) {
+					int total = Integer.parseInt(message.replace("::Create Players:: - ", ""));
+					game.createPlayers(total);
+					showMessage(message, false);
+				} else if(sender.equals("")) {
+					index = Integer.parseInt(message);
+					game.setIndex(index);
+					showMessage(message, false);
 				} else {
 					showMessage(sender + ": " + message, false);
 //					server.broadcast(message);

@@ -11,10 +11,12 @@ public class EchoServer extends Thread{
 	private ObjectInputStream input;
 	private ObjectOutputStream output;
 	private String sender;
+	private int index;
 	
-	public EchoServer(Socket clientSocket, Server server) {
+	public EchoServer(Socket clientSocket, Server server, int index) {
 		this.clientSocket = clientSocket;
 		this.server = server;
+		this.index = index;
 		System.out.println("Setting up streams...");
 		setupStream();
 	}
@@ -26,6 +28,7 @@ public class EchoServer extends Thread{
 			this.output.flush();
 			System.out.println("Setting up input stream...");
 			this.input = new ObjectInputStream(clientSocket.getInputStream());
+			this.sendMessage(Integer.toString(index), "");
 		} catch(Exception e) {
 			
 		}

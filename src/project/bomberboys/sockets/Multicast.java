@@ -9,16 +9,19 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
+import project.bomberboys.game.Game;
+
 
 public class Multicast implements Runnable {
 	
+	Game game;
 	MulticastSocket socket;
 	int port = 4445;
 	InetAddress group = InetAddress.getByName("225.0.0.0");
 	ObjectPacket object;
 
-	public Multicast (ObjectPacket object) throws IOException{
-		
+	public Multicast (Game game, ObjectPacket object) throws IOException{
+		this.game = game;
 		socket = new MulticastSocket(port);
 		socket.joinGroup(group);
 		this.object = object;
@@ -38,6 +41,7 @@ public class Multicast implements Runnable {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream(6400);
 		final ObjectOutputStream oos = new ObjectOutputStream(baos);
 		oos.writeObject(this.object);
+//		System.out.println("sending (" + object.getX() + ", " + object.getY() + ")");
 		final byte[] data = baos.toByteArray();
 
 		final DatagramPacket packet = new DatagramPacket(data, data.length, group, port);
@@ -74,8 +78,9 @@ public class Multicast implements Runnable {
 		while(true){
 			try {
 				ObjectPacket update = receive();
-				update.getX();
-				update.getX();
+				System.out.println("received (" + update.getX() + ", " + update.getY() + ") for index: " + update.getIndex());
+				game.getPlayers()[update.getIndex()].setX(update.getX());
+				game.getPlayers()[update.getIndex()].setY(update.getY());
 				// Place Update on Map
 			} catch (IOException e) {
 	
