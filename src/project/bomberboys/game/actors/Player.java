@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.LinkedList;
 
 import javax.swing.JTextField;
@@ -11,18 +14,99 @@ import javax.swing.JTextField;
 import project.bomberboys.game.Game;
 import project.bomberboys.game.GameObject;
 import project.bomberboys.game.blocks.Block;
+import project.bomberboys.game.bombs.Bomb;
 import project.bomberboys.sockets.ChatSocket;
+import project.bomberboys.sockets.Multicast;
+import project.bomberboys.sockets.ObjectPacket;
+import project.bomberboys.window.Animation;
+import project.bomberboys.window.BufferedImageLoader;
+import project.bomberboys.window.SpriteSheet;
 
-public class Player extends GameObject{
+public class Player extends GameObject implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
 	private boolean chatActive;
 	private JTextField chatField;
+	private Multicast udpThread;
+	
+	private ObjectPacket obj;
+	protected LinkedList<Bomb> bombs;
+	protected ChatSocket socket;
+	protected Animation forward, backward, leftward, rightward, waiting, dying, winning, invulnerableAnimation, abilityAnimation, cooldownAnimation, frozenAnimation;
+	protected BufferedImage[] front, back, left, right, idle, death, victory, invulnerableImages, abilityImages, cooldownImages, frozenImages;
+	protected BufferedImage sprite, invulnerableSprite, abilitySprite, cooldownSprite, frozenSprite;
+	protected String action = "s", pastAction;
+	protected BufferedImageLoader imageLoader;
+	protected boolean controlledExplosion = true;
 
 	public Player(Game game, float x, float y, ChatSocket socket) {
 		super(game, socket.getUsername(), x, y);
+		this.socket = socket;
 		this.speed = 0.1f;
 		this.chatActive = false;
 		this.chatField = socket.getChatField();
+		
+		obj = new ObjectPacket(x, y, game.getIndex());
+		
+		try {
+			this.udpThread = new Multicast(game, obj);
+			System.out.println("UDP Thread initialized");
+		} catch (IOException e) {}
+
+		this.bombs = new LinkedList<Bomb>();
+		loadImage();
+		createAnimation();
+	}
+	
+	public Player(Game game, float x, float y) {
+		super(game, "", x, y);
+		this.speed = 0.1f;
+
+		this.bombs = new LinkedList<Bomb>();
+		loadImage();
+		createAnimation();
+	}
+	
+	public void createAnimation(){
+		forward		 = new Animation(game, 3, front);
+		backward	 = new Animation(game, 3, back);
+		leftward	 = new Animation(game, 3, left);
+		rightward	 = new Animation(game, 3, right);
+		waiting		 = new Animation(game, 5, idle);
+		dying		 = new Animation(game, 8, death);
+		winning		 = new Animation(game, 10, victory);
+		
+		forward.animate();
+		backward.animate();
+		leftward.animate();
+		rightward.animate();
+		waiting.animate();
+		dying.animate();
+		winning.animate();
+	}
+	
+	public void loadImage() {
+		imageLoader = new BufferedImageLoader();
+		sprite = imageLoader.load("/img/player/player" + 1 + ".png/");
+		invulnerableSprite = imageLoader.load("/img/player/respawnInvulnerable.png/");
+		front	 = new BufferedImage[8];
+		back	 = new BufferedImage[8];
+		left	 = new BufferedImage[8];
+		right	 = new BufferedImage[8];
+		idle	 = new BufferedImage[8];
+		death	 = new BufferedImage[8];
+		victory	 = new BufferedImage[8];
+		
+		invulnerableImages = new BufferedImage[20];
+		for(int i = 0; i < 8; i++) {
+			front[i]	 = SpriteSheet.grabImage(sprite, 1, i + 1, 18, 24);
+			back[i]		 = SpriteSheet.grabImage(sprite, 2, i + 1, 18, 24);
+			left[i]		 = SpriteSheet.grabImage(sprite, 3, i + 1, 18, 24);
+			right[i]	 = SpriteSheet.grabImage(sprite, 4, i + 1, 18, 24);
+			idle[i]		 = SpriteSheet.grabImage(sprite, 5, i + 1, 18, 24);
+			death[i]	 = SpriteSheet.grabImage(sprite, 6, i + 1, 18, 24);
+			victory[i]	 = SpriteSheet.grabImage(sprite, 7, i + 1, 18, 24);
+		}
 	}
 	
 	public void stop(int k) {
@@ -50,18 +134,22 @@ public class Player extends GameObject{
 		case KeyEvent.VK_W:
 		case KeyEvent.VK_UP:
 			velY = -speed;
+			action = "w";
 			break;
 		case KeyEvent.VK_S:
 		case KeyEvent.VK_DOWN:
 			velY = speed;
+			action = "s";
 			break;
 		case KeyEvent.VK_A:
 		case KeyEvent.VK_LEFT:
 			velX = -speed;
+			action = "a";
 			break;
 		case KeyEvent.VK_D:
 		case KeyEvent.VK_RIGHT:
 			velX = speed;
+			action = "d";
 			break;
 		case KeyEvent.VK_ENTER:
 			chatActive = true;
@@ -71,6 +159,24 @@ public class Player extends GameObject{
 			}
 			chatActive = false;
 			break;
+		case KeyEvent.VK_SPACE:
+			int 
+				playerX = (int)((x - (int)x <= 0.5f) ? x : x + 1),
+				playerY = (int)((y - (int)y <= 0.5f) ? y : y + 1);
+			if(game.getGameBoard()[playerY][playerX] == ' ' || game.getGameBoard()[playerY][playerX] == 'v' || game.getGameBoard()[playerY][playerX] == '+') {
+				Bomb b = new Bomb(game, playerX, playerY, socket, this);
+				bombs.add(b);
+				game.getGameBoard()[playerY][playerX] = 'o';
+	//			System.out.println("(" + playerX + ", " + playerY + ")");
+				game.getObjectBoard()[playerY][playerX] = b;
+			}
+			break;
+		case KeyEvent.VK_E:
+			Bomb b = bombs.getFirst();
+			b.explode();
+			bombs.remove(b);
+			bombs.add(b);
+			break;
 		case KeyEvent.VK_ESCAPE:
 			game.stop();
 			break;
@@ -78,10 +184,23 @@ public class Player extends GameObject{
 	}
 	
 	public void update() {
+		for(int i = 0; i < bombs.size(); i++) {
+			bombs.get(i).update();
+		}
 		x += velX;
 		y += velY;
-		
+		if(velX < 0) 		leftward.	animate();
+		else if(velX > 0)	rightward.	animate();
+		else if(velY < 0)	backward.	animate();
+		else if(velY > 0)	forward.	animate();
 		collide();
+		obj.update(x, y);
+		
+		try {
+			udpThread.broadcast();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void collide() {
@@ -102,15 +221,38 @@ public class Player extends GameObject{
 	}
 	
 	public void render(Graphics g) {
-		g.setColor(Color.WHITE);
-//		int 
-//			playerX = (int)((x - (int)x <= 0.5f) ? x : x + 1),
-//			playerY = (int)((y - (int)y <= 0.5f) ? y : y + 1);
+		for(int i = 0; i < bombs.size(); i++) {
+			Bomb b = bombs.get(i);
+			b.render(g);
+		}
+//		switch(action) {
+//		case "s":
+//			if(velY == 0) g.drawImage(front[front.length - 1], (int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale(), null);
+//			else forward.drawAnimation(g, x, y);
+//			break;
+//		case "w":
+//			if(velY == 0) g.drawImage(back[back.length - 1], (int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale(), null);
+//			else backward.drawAnimation(g, x, y);
+//			break;
+//		case "a":
+//			if(velX == 0) g.drawImage(left[left.length - 1], (int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale(), null);
+//			else leftward.drawAnimation(g, x, y);
+//			break;
+//		case "d":
+//			if(velX == 0) g.drawImage(right[right.length - 1], (int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale(), null);
+//			else rightward.drawAnimation(g, x, y);
+//			break;
+//		}
+		g.setColor(Color.BLUE);
 		g.fillRect((int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale());
 	}
 	
 	public void destroy() {
 		
+	}
+	
+	public LinkedList<Bomb> getBombs() {
+		return this.bombs;
 	}
 	
 	public Rectangle getBounds() {
@@ -131,6 +273,10 @@ public class Player extends GameObject{
 	
 	public Rectangle getBoundsRight() {
 		return new Rectangle((int)(x * game.getObjectSize() + game.getObjectSize() - game.getObjectSize()/4) * game.getScale(), (int)(y * game.getObjectSize() + (game.getObjectSize()/4)) * game.getScale(), game.getObjectSize()/4 * game.getScale(), game.getObjectSize()/2 * game.getScale());
+	}
+	
+	public boolean hasControlledExplosion() {
+		return controlledExplosion;
 	}
 
 }

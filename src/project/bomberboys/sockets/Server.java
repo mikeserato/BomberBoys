@@ -18,7 +18,7 @@ import project.bomberboys.game.Game;
 
 public class Server extends ChatSocket {
 
-	private int clientsAccepted = 0, playerCount, port;
+	private int clientsAccepted = 0, playerCount, port, index;
 	private EchoServer[] servers;
 	
 	public Server(int playerCount, int roundCount, int port, MainBoom main) {
@@ -110,12 +110,19 @@ public class Server extends ChatSocket {
 			} catch(Exception e) {
 				
 			}
-			servers[clientsAccepted] = new EchoServer(socket, this);
+			servers[clientsAccepted] = new EchoServer(socket, this, clientsAccepted);
 			servers[clientsAccepted].start();
 		}
+		index = playerCount;
+		game.setIndex(index);
+		this.showMessage("" + index + "", false);
+		this.broadcast("::Create Players:: - " + (playerCount + 1), "");
+		this.showMessage("::Create Players::", false);
+		game.createPlayers(playerCount + 1);
 		System.out.println("All players are connected");
 		
-		this.broadcast("::Game Start::", username);
+		this.broadcast("::Game Start::", "");
+		this.showMessage("::Game Start::", false);
 		game.start();
 	}
 	
