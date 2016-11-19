@@ -10,6 +10,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 import project.bomberboys.game.Game;
+import project.bomberboys.game.bombs.Bomb;
 
 
 public class Multicast implements Runnable {
@@ -80,14 +81,28 @@ public class Multicast implements Runnable {
 				
 				if(packet instanceof PlayerPacket){
 					PlayerPacket update = (PlayerPacket) packet;
-//					System.out.println("received (" + update.getX() + ", " + update.getY() + ") for index: " + update.getIndex());
+					//System.out.println("received (" + update.getX() + ", " + update.getY() + ") for index: " + update.getIndex());
 					game.getPlayers()[update.getIndex()].setX(update.getX());
 					game.getPlayers()[update.getIndex()].setY(update.getY());
 				}
 				
 				if(packet instanceof BombPacket){
 					BombPacket update = (BombPacket) packet;
-					System.out.println("Bomb received");
+					
+					float x = game.getPlayers()[update.getIndex()].getX();
+					float y = game.getPlayers()[update.getIndex()].getY();
+					
+					int playerX = (int)((x - (int)x <= 0.5f) ? x : x + 1);
+					int playerY = (int)((y - (int)y <= 0.5f) ? y : y + 1);
+					
+					if(game.getGameBoard()[playerY][playerX] != 'o'){
+						Bomb b = new Bomb(game,update.getX(),update.getY(), game.getChatSocket(), game.getPlayers()[update.getIndex()]);
+						
+						game.getPlayers()[update.getIndex()].getBombs().add(b);
+						
+						game.getGameBoard()[playerY][playerX] = 'o';
+						game.getObjectBoard()[playerY][playerX] = b;	
+					}
 				}
 
 			} catch (IOException e) {

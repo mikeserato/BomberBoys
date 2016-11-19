@@ -208,5 +208,9 @@ public class Game extends Canvas implements Runnable {
 	public void setIndex(int index) {
 		this.index = index;
 	}
+	
+	public ChatSocket getChatSocket() {
+		return this.socket;
+	}
 
 }

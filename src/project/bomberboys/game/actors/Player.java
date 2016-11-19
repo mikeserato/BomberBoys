@@ -167,8 +167,9 @@ public class Player extends GameObject implements Serializable {
 			if(game.getGameBoard()[playerY][playerX] == ' ' || game.getGameBoard()[playerY][playerX] == 'v' || game.getGameBoard()[playerY][playerX] == '+') {
 				Bomb b = new Bomb(game, playerX, playerY, socket, this);
 				
-				BombPacket BombPacket = new BombPacket(b.getX(), b.getY());
+				BombPacket BombPacket = new BombPacket(b.getX(), b.getY(), game.getIndex());
 				udpThread.update(BombPacket);
+				broadcast();
 				
 				bombs.add(b);
 				game.getGameBoard()[playerY][playerX] = 'o';
@@ -192,6 +193,7 @@ public class Player extends GameObject implements Serializable {
 		for(int i = 0; i < bombs.size(); i++) {
 			bombs.get(i).update();
 		}
+
 		x += velX;
 		y += velY;
 		if(velX < 0) 		leftward.	animate();
@@ -199,8 +201,14 @@ public class Player extends GameObject implements Serializable {
 		else if(velY < 0)	backward.	animate();
 		else if(velY > 0)	forward.	animate();
 		collide();
-		obj.update(x, y);
 		
+		obj.update(x, y);
+		udpThread.update(obj);
+		broadcast();
+		
+	}
+	
+	public void broadcast() {
 		try {
 			udpThread.broadcast();
 		} catch (IOException e) {

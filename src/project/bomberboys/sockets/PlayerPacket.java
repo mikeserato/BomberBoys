@@ -6,12 +6,8 @@ public class PlayerPacket extends ObjectPacket {
 	protected int index;
 
 	public PlayerPacket(float x, float y, int index) {
-		super(x, y);
-		this.index = index;
-	}
-	
-	public int getIndex() {
-		return this.index;
+		super(x, y, index);
+
 	}
 
 }
