@@ -50,7 +50,7 @@ public class Multicast implements Runnable {
 	}
 	
 	public ObjectPacket receive() throws IOException {
-		ObjectPacket ObjectPacket = null;
+		PlayerPacket PlayerPacket = null;
 		
 		byte buffer[] = new byte[6400];
 		DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -60,13 +60,13 @@ public class Multicast implements Runnable {
 		final ObjectInputStream ois = new ObjectInputStream(bais);
 		
 		try {
-			ObjectPacket = (ObjectPacket)ois.readObject();
+			PlayerPacket = (PlayerPacket)ois.readObject();
 			
 		} catch (ClassNotFoundException e) {
 
 		}
 		
-		return(ObjectPacket);
+		return(PlayerPacket);
 		
 	}
 	
@@ -77,7 +77,7 @@ public class Multicast implements Runnable {
 	public void run() {
 		while(true){
 			try {
-				ObjectPacket update = receive();
+				PlayerPacket update = (PlayerPacket)receive();
 				System.out.println("received (" + update.getX() + ", " + update.getY() + ") for index: " + update.getIndex());
 				game.getPlayers()[update.getIndex()].setX(update.getX());
 				game.getPlayers()[update.getIndex()].setY(update.getY());

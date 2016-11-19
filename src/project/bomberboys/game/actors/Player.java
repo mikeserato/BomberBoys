@@ -17,7 +17,7 @@ import project.bomberboys.game.blocks.Block;
 import project.bomberboys.game.bombs.Bomb;
 import project.bomberboys.sockets.ChatSocket;
 import project.bomberboys.sockets.Multicast;
-import project.bomberboys.sockets.ObjectPacket;
+import project.bomberboys.sockets.PlayerPacket;
 import project.bomberboys.window.Animation;
 import project.bomberboys.window.BufferedImageLoader;
 import project.bomberboys.window.SpriteSheet;
@@ -29,7 +29,7 @@ public class Player extends GameObject implements Serializable {
 	private JTextField chatField;
 	private Multicast udpThread;
 	
-	private ObjectPacket obj;
+	private PlayerPacket obj;
 	protected LinkedList<Bomb> bombs;
 	protected ChatSocket socket;
 	protected Animation forward, backward, leftward, rightward, waiting, dying, winning, invulnerableAnimation, abilityAnimation, cooldownAnimation, frozenAnimation;
@@ -46,7 +46,7 @@ public class Player extends GameObject implements Serializable {
 		this.chatActive = false;
 		this.chatField = socket.getChatField();
 		
-		obj = new ObjectPacket(x, y, game.getIndex());
+		obj = new PlayerPacket(x, y, game.getIndex());
 		
 		try {
 			this.udpThread = new Multicast(game, obj);
