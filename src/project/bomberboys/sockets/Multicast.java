@@ -50,7 +50,7 @@ public class Multicast implements Runnable {
 	}
 	
 	public ObjectPacket receive() throws IOException {
-		PlayerPacket PlayerPacket = null;
+		ObjectPacket  ObjectPacket = null;
 		
 		byte buffer[] = new byte[6400];
 		DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -60,13 +60,12 @@ public class Multicast implements Runnable {
 		final ObjectInputStream ois = new ObjectInputStream(bais);
 		
 		try {
-			PlayerPacket = (PlayerPacket)ois.readObject();
-			
+			ObjectPacket = (ObjectPacket) ois.readObject();
 		} catch (ClassNotFoundException e) {
 
 		}
 		
-		return(PlayerPacket);
+		return(ObjectPacket);
 		
 	}
 	
@@ -77,11 +76,20 @@ public class Multicast implements Runnable {
 	public void run() {
 		while(true){
 			try {
-				PlayerPacket update = (PlayerPacket)receive();
-				System.out.println("received (" + update.getX() + ", " + update.getY() + ") for index: " + update.getIndex());
-				game.getPlayers()[update.getIndex()].setX(update.getX());
-				game.getPlayers()[update.getIndex()].setY(update.getY());
-				// Place Update on Map
+				ObjectPacket packet = (ObjectPacket)receive();
+				
+				if(packet instanceof PlayerPacket){
+					PlayerPacket update = (PlayerPacket) packet;
+//					System.out.println("received (" + update.getX() + ", " + update.getY() + ") for index: " + update.getIndex());
+					game.getPlayers()[update.getIndex()].setX(update.getX());
+					game.getPlayers()[update.getIndex()].setY(update.getY());
+				}
+				
+				if(packet instanceof BombPacket){
+					BombPacket update = (BombPacket) packet;
+					System.out.println("Bomb received");
+				}
+
 			} catch (IOException e) {
 	
 			}

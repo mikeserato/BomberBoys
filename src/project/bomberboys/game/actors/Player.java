@@ -15,6 +15,7 @@ import project.bomberboys.game.Game;
 import project.bomberboys.game.GameObject;
 import project.bomberboys.game.blocks.Block;
 import project.bomberboys.game.bombs.Bomb;
+import project.bomberboys.sockets.BombPacket;
 import project.bomberboys.sockets.ChatSocket;
 import project.bomberboys.sockets.Multicast;
 import project.bomberboys.sockets.PlayerPacket;
@@ -165,6 +166,10 @@ public class Player extends GameObject implements Serializable {
 				playerY = (int)((y - (int)y <= 0.5f) ? y : y + 1);
 			if(game.getGameBoard()[playerY][playerX] == ' ' || game.getGameBoard()[playerY][playerX] == 'v' || game.getGameBoard()[playerY][playerX] == '+') {
 				Bomb b = new Bomb(game, playerX, playerY, socket, this);
+				
+				BombPacket BombPacket = new BombPacket(b.getX(), b.getY());
+				udpThread.update(BombPacket);
+				
 				bombs.add(b);
 				game.getGameBoard()[playerY][playerX] = 'o';
 	//			System.out.println("(" + playerX + ", " + playerY + ")");
