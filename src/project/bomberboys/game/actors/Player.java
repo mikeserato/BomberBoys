@@ -15,9 +15,10 @@ import project.bomberboys.game.Game;
 import project.bomberboys.game.GameObject;
 import project.bomberboys.game.blocks.Block;
 import project.bomberboys.game.bombs.Bomb;
+import project.bomberboys.sockets.BombPacket;
 import project.bomberboys.sockets.ChatSocket;
 import project.bomberboys.sockets.Multicast;
-import project.bomberboys.sockets.ObjectPacket;
+import project.bomberboys.sockets.PlayerPacket;
 import project.bomberboys.window.Animation;
 import project.bomberboys.window.BufferedImageLoader;
 import project.bomberboys.window.SpriteSheet;
@@ -29,7 +30,7 @@ public class Player extends GameObject implements Serializable {
 	private JTextField chatField;
 	private Multicast udpThread;
 	
-	private ObjectPacket obj;
+	private PlayerPacket obj;
 	protected LinkedList<Bomb> bombs;
 	protected ChatSocket socket;
 	protected Animation forward, backward, leftward, rightward, waiting, dying, winning, invulnerableAnimation, abilityAnimation, cooldownAnimation, frozenAnimation;
@@ -46,7 +47,7 @@ public class Player extends GameObject implements Serializable {
 		this.chatActive = false;
 		this.chatField = socket.getChatField();
 		
-		obj = new ObjectPacket(x, y, game.getIndex());
+		obj = new PlayerPacket(x, y, game.getIndex());
 		
 		try {
 			this.udpThread = new Multicast(game, obj);
@@ -165,6 +166,11 @@ public class Player extends GameObject implements Serializable {
 				playerY = (int)((y - (int)y <= 0.5f) ? y : y + 1);
 			if(game.getGameBoard()[playerY][playerX] == ' ' || game.getGameBoard()[playerY][playerX] == 'v' || game.getGameBoard()[playerY][playerX] == '+') {
 				Bomb b = new Bomb(game, playerX, playerY, socket, this);
+				
+				BombPacket BombPacket = new BombPacket(b.getX(), b.getY(), game.getIndex());
+				udpThread.update(BombPacket);
+				broadcast();
+				
 				bombs.add(b);
 				game.getGameBoard()[playerY][playerX] = 'o';
 	//			System.out.println("(" + playerX + ", " + playerY + ")");
@@ -187,6 +193,7 @@ public class Player extends GameObject implements Serializable {
 		for(int i = 0; i < bombs.size(); i++) {
 			bombs.get(i).update();
 		}
+
 		x += velX;
 		y += velY;
 		if(velX < 0) 		leftward.	animate();
@@ -194,8 +201,14 @@ public class Player extends GameObject implements Serializable {
 		else if(velY < 0)	backward.	animate();
 		else if(velY > 0)	forward.	animate();
 		collide();
-		obj.update(x, y);
 		
+		obj.update(x, y);
+		udpThread.update(obj);
+		broadcast();
+		
+	}
+	
+	public void broadcast() {
 		try {
 			udpThread.broadcast();
 		} catch (IOException e) {

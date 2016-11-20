@@ -5,9 +5,9 @@ import java.io.Serializable;
 public class ObjectPacket implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	private float x;
-	private float y;
-	private int index;
+	protected float x;
+	protected float y;
+	protected int index;
 	
 	public ObjectPacket(float x, float y, int index) {
 		this.x = x;

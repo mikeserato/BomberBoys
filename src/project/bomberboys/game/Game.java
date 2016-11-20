@@ -85,7 +85,7 @@ public class Game extends Canvas implements Runnable {
 	public void run() {
 		
 		this.addKeyListener(new GameKeyListener(player));
-		System.out.println("Game Thread " + index + "started");
+		System.out.println("Game Thread " + index + " started");
 		this.requestFocusInWindow();
 		
 		long lastTime = System.nanoTime();
@@ -207,6 +207,10 @@ public class Game extends Canvas implements Runnable {
 	
 	public void setIndex(int index) {
 		this.index = index;
+	}
+	
+	public ChatSocket getChatSocket() {
+		return this.socket;
 	}
 
 }
