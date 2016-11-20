@@ -9,26 +9,32 @@ import java.util.Random;
 import project.bomberboys.game.blocks.Block;
 import project.bomberboys.game.blocks.HardBlock;
 import project.bomberboys.game.blocks.SoftBlock;
+import project.bomberboys.sockets.Server;
 import project.bomberboys.window.BufferedImageLoader;
+import project.bomberboys.window.SpriteSheet;
 
 public class Field {
 
+	private BufferedImageLoader imageLoader = new BufferedImageLoader();
+	private BufferedImage terrain;
 	private Game game;
 	private char[][] gameBoard;
 	private GameObject[][] objectBoard;
+	private int index;
 	private static int width = 5, height = 5;
 	private LinkedList<Block> blocks;
 	private static BufferedImageLoader loader;
 	private static BufferedImage fieldImage;
 	
-	public Field(Game game) { 
+	public Field(Game game, int index) { 
 		this.game = game;
+		this.index = index;
 		this.gameBoard = game.getGameBoard();
-//		this.gameBoard = new char[height][width];
 		this.objectBoard = game.getObjectBoard();
-//		this.objectBoard = new GameObject[height][width];
 		this.blocks = new LinkedList<Block>();
-		initField();
+		
+		terrain = SpriteSheet.grabImage(imageLoader.load("/img/field/terrain" + index + ".png/"), 1, 1, game.getWidth(), game.getHeight());
+		/*if(game.isServer())*/ initField();
 	}
 	
 	public static Dimension checkField() {
@@ -74,7 +80,7 @@ public class Field {
 //				if(i == 0 || j == 0 || (j + 1) == width || (i + 1) == height || (i % 2 == 0 && j % 2 == 0)) {
 				if(((red == 255) && (green == 255) && (blue == 255)) || (red == 0) && (green == 255) && (blue == 0)) {
 					gameBoard[i][j] = 'x';
-					HardBlock b = new HardBlock(game, j, i);
+					HardBlock b = new HardBlock(game, j, i, index, false);
 					objectBoard[i][j] = b;
 					blocks.add(b);
 				} else if ((red == 0) && (green == 0) && (blue == 255)) {
@@ -87,6 +93,10 @@ public class Field {
 			}
 		}
 //		randomizeField();
+		if(game.isServer()) {
+			((Server) game.getChatSocket()).broadcast("::Game Start::", "");
+			game.start();
+		}
 	}
 	
 	public void randomizeField() {
@@ -100,13 +110,12 @@ public class Field {
 			
 			if(gameBoard[y][x] == ' ') {
 				gameBoard[y][x] = '#';
-				SoftBlock b = new SoftBlock(game, x, y);
+				SoftBlock b = new SoftBlock(game, x, y, index, false);
 				objectBoard[y][x] = b;
 				blocks.add(b);
 				i++;
 			}
 		}
-		
 	}
 
 	public void update() {
@@ -116,6 +125,7 @@ public class Field {
 	}
 	
 	public void render(Graphics g) {
+//		g.drawImage(terrain, 0, 0, game.getWidth() * game.getScale(), game.getHeight() * game.getScale(), null);
 		for(int i = 0; i < blocks.size(); i++) {
 			blocks.get(i).render(g);
 		}
@@ -123,6 +133,10 @@ public class Field {
 	
 	public LinkedList<Block> getBlocks() {
 		return this.blocks;
+	}
+	
+	public BufferedImage getTerrain() {
+		return this.terrain;
 	}
 
 }

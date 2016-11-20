@@ -1,6 +1,5 @@
 package project.bomberboys.game.actors;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
@@ -15,10 +14,9 @@ import project.bomberboys.game.Game;
 import project.bomberboys.game.GameObject;
 import project.bomberboys.game.blocks.Block;
 import project.bomberboys.game.bombs.Bomb;
-import project.bomberboys.sockets.BombPacket;
 import project.bomberboys.sockets.ChatSocket;
 import project.bomberboys.sockets.Multicast;
-import project.bomberboys.sockets.PlayerPacket;
+import project.bomberboys.sockets.datapackets.PlayerPacket;
 import project.bomberboys.window.Animation;
 import project.bomberboys.window.BufferedImageLoader;
 import project.bomberboys.window.SpriteSheet;
@@ -38,20 +36,27 @@ public class Player extends GameObject implements Serializable {
 	protected BufferedImage sprite, invulnerableSprite, abilitySprite, cooldownSprite, frozenSprite;
 	protected String action = "s", pastAction;
 	protected BufferedImageLoader imageLoader;
-	protected boolean controlledExplosion = true;
+	protected int firePower = 3, bombLimit = 3;
+	protected String bombType = "";
+	
+	protected long deathTimer, invulnerableTimer;
+	protected boolean alive, invulnerable;
+	
+	private boolean dummy = false;
 
 	public Player(Game game, float x, float y, ChatSocket socket) {
 		super(game, socket.getUsername(), x, y);
+		this.life = 3;
 		this.socket = socket;
 		this.speed = 0.1f;
 		this.chatActive = false;
 		this.chatField = socket.getChatField();
+		this.alive = true;
 		
 		obj = new PlayerPacket(x, y, game.getIndex());
 		
 		try {
 			this.udpThread = new Multicast(game, obj);
-			System.out.println("UDP Thread initialized");
 		} catch (IOException e) {}
 
 		this.bombs = new LinkedList<Bomb>();
@@ -61,8 +66,8 @@ public class Player extends GameObject implements Serializable {
 	
 	public Player(Game game, float x, float y) {
 		super(game, "", x, y);
-		this.speed = 0.1f;
-
+		this.life = 3;
+		this.dummy = true;
 		this.bombs = new LinkedList<Bomb>();
 		loadImage();
 		createAnimation();
@@ -84,6 +89,9 @@ public class Player extends GameObject implements Serializable {
 		waiting.animate();
 		dying.animate();
 		winning.animate();
+		
+		invulnerableAnimation = new Animation(game, 14, invulnerableImages);
+		invulnerableAnimation.animate();
 	}
 	
 	public void loadImage() {
@@ -107,6 +115,12 @@ public class Player extends GameObject implements Serializable {
 			idle[i]		 = SpriteSheet.grabImage(sprite, 5, i + 1, 18, 24);
 			death[i]	 = SpriteSheet.grabImage(sprite, 6, i + 1, 18, 24);
 			victory[i]	 = SpriteSheet.grabImage(sprite, 7, i + 1, 18, 24);
+		}
+		
+		for(int i = 0; i < 2; i++) {
+			for(int j = 0; j < 10; j++) {
+				invulnerableImages[(10 * i) + j] = SpriteSheet.grabImage(invulnerableSprite, i + 1, j + 1, 192, 192);
+			}
 		}
 	}
 	
@@ -153,29 +167,10 @@ public class Player extends GameObject implements Serializable {
 			action = "d";
 			break;
 		case KeyEvent.VK_ENTER:
-			chatActive = true;
-			if(chatActive) {
-				stop(k);
-				chatField.requestFocusInWindow();
-			}
-			chatActive = false;
+			chat();
 			break;
 		case KeyEvent.VK_SPACE:
-			int 
-				playerX = (int)((x - (int)x <= 0.5f) ? x : x + 1),
-				playerY = (int)((y - (int)y <= 0.5f) ? y : y + 1);
-			if(game.getGameBoard()[playerY][playerX] == ' ' || game.getGameBoard()[playerY][playerX] == 'v' || game.getGameBoard()[playerY][playerX] == '+') {
-				Bomb b = new Bomb(game, playerX, playerY, socket, this);
-				
-				BombPacket BombPacket = new BombPacket(b.getX(), b.getY(), game.getIndex());
-				udpThread.update(BombPacket);
-				broadcast();
-				
-				bombs.add(b);
-				game.getGameBoard()[playerY][playerX] = 'o';
-	//			System.out.println("(" + playerX + ", " + playerY + ")");
-				game.getObjectBoard()[playerY][playerX] = b;
-			}
+			setBomb();
 			break;
 		case KeyEvent.VK_E:
 			Bomb b = bombs.getFirst();
@@ -189,22 +184,62 @@ public class Player extends GameObject implements Serializable {
 		}
 	}
 	
+	public void chat() {
+		chatActive = true;
+		if(chatActive) {
+			stop(10);
+			chatField.requestFocusInWindow();
+		}
+		chatActive = false;
+	}
+	
+	public void setBomb() {
+		int 
+			playerX = (int)((x - (int)x <= 0.5f) ? x : x + 1),
+			playerY = (int)((y - (int)y <= 0.5f) ? y : y + 1);
+		if(bombLimit > 0 && (game.getGameBoard()[playerY][playerX] == ' ' || game.getGameBoard()[playerY][playerX] == 'v' || game.getGameBoard()[playerY][playerX] == '+')) {
+			game.getGameBoard()[playerY][playerX] = 'o';
+			Bomb b = new Bomb(game, playerX, playerY, socket, this);
+			bombs.add(b);
+			game.getObjectBoard()[playerY][playerX] = b;
+			bombLimit--;
+		}
+	}
+	
 	public void update() {
+		
 		for(int i = 0; i < bombs.size(); i++) {
 			bombs.get(i).update();
 		}
-
-		x += velX;
-		y += velY;
-		if(velX < 0) 		leftward.	animate();
-		else if(velX > 0)	rightward.	animate();
-		else if(velY < 0)	backward.	animate();
-		else if(velY > 0)	forward.	animate();
-		collide();
-		
-		obj.update(x, y);
-		udpThread.update(obj);
-		broadcast();
+		if(alive) {
+			if(!dummy) {
+				x += velX;
+				y += velY;
+				collide();
+				obj.update(x, y, velX, velY, action);
+				
+				udpThread.update(obj);
+				
+				broadcast();
+			}
+			
+			if(invulnerable) {
+				invulnerableAnimation.animate();
+				if(System.currentTimeMillis() - invulnerableTimer >= 5000) {
+					invulnerable = false;
+				}
+			}
+			
+			if(velX < 0) 		leftward.	animate();
+			else if(velX > 0)	rightward.	animate();
+			else if(velY < 0)	backward.	animate();
+			else if(velY > 0)	forward.	animate();
+		} else {
+			dying.animate();
+			if(System.currentTimeMillis() - deathTimer > 1000) {
+				respawn();
+			}
+		}
 		
 	}
 	
@@ -238,30 +273,52 @@ public class Player extends GameObject implements Serializable {
 			Bomb b = bombs.get(i);
 			b.render(g);
 		}
-//		switch(action) {
-//		case "s":
-//			if(velY == 0) g.drawImage(front[front.length - 1], (int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale(), null);
-//			else forward.drawAnimation(g, x, y);
-//			break;
-//		case "w":
-//			if(velY == 0) g.drawImage(back[back.length - 1], (int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale(), null);
-//			else backward.drawAnimation(g, x, y);
-//			break;
-//		case "a":
-//			if(velX == 0) g.drawImage(left[left.length - 1], (int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale(), null);
-//			else leftward.drawAnimation(g, x, y);
-//			break;
-//		case "d":
-//			if(velX == 0) g.drawImage(right[right.length - 1], (int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale(), null);
-//			else rightward.drawAnimation(g, x, y);
-//			break;
-//		}
-		g.setColor(Color.BLUE);
-		g.fillRect((int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale());
+		if(alive) {
+			if(invulnerable) {
+				invulnerableAnimation.drawAnimation(g, x - 0.5f, y - 0.5f, 2, 2);
+			}
+			switch(action) {
+			case "s":
+				if(velY == 0) g.drawImage(front[front.length - 1], (int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale(), null);
+				else forward.drawAnimation(g, x, y);
+				break;
+			case "w":
+				if(velY == 0) g.drawImage(back[back.length - 1], (int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale(), null);
+				else backward.drawAnimation(g, x, y);
+				break;
+			case "a":
+				if(velX == 0) g.drawImage(left[left.length - 1], (int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale(), null);
+				else leftward.drawAnimation(g, x, y);
+				break;
+			case "d":
+				if(velX == 0) g.drawImage(right[right.length - 1], (int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale(), null);
+				else rightward.drawAnimation(g, x, y);
+				break;
+			}
+		} else {
+			dying.drawAnimation(g, x, y);
+		}
 	}
 	
 	public void destroy() {
-		
+		if(!invulnerable) {
+//			game.getSoundLoader().play("/sfx/player/dead.wav");
+			dying.restart();
+			dying.animate();
+			alive = false;
+			deathTimer = System.currentTimeMillis();
+			invulnerable = true;
+		}
+	}
+	
+	public void respawn() {
+		this.alive = true;
+		x = 1; y = 1;
+		invulnerableTimer = System.currentTimeMillis();
+		invulnerableAnimation.restart();
+		life--;
+		bombType = "normal";
+		action = "s";
 	}
 	
 	public LinkedList<Bomb> getBombs() {
@@ -288,8 +345,16 @@ public class Player extends GameObject implements Serializable {
 		return new Rectangle((int)(x * game.getObjectSize() + game.getObjectSize() - game.getObjectSize()/4) * game.getScale(), (int)(y * game.getObjectSize() + (game.getObjectSize()/4)) * game.getScale(), game.getObjectSize()/4 * game.getScale(), game.getObjectSize()/2 * game.getScale());
 	}
 	
-	public boolean hasControlledExplosion() {
-		return controlledExplosion;
+	public String getBombType() {
+		return this.bombType;
+	}
+	
+	public void setAction(String action) {
+		this.action = action;
+	}
+	
+	public void decrementLiveBombs() {
+		this.bombLimit++;
 	}
 
 }

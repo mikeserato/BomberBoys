@@ -18,5 +18,9 @@ public class SpawnPoint {
 	public int getY() {
 		return this.y;
 	}
+	
+	public boolean isUsed() {
+		return used;
+	}
 
 }

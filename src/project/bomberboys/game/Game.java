@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 import project.bomberboys.game.actors.Player;
 import project.bomberboys.listeners.GameKeyListener;
 import project.bomberboys.sockets.ChatSocket;
+import project.bomberboys.sockets.Server;
 import project.bomberboys.window.Camera;
 
 
@@ -21,7 +22,7 @@ public class Game extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
 	
 	private final int HEIGHT = 400, WIDTH = 400, OBJECTSIZE = 12, scale = 2;
-	private boolean running = false;
+	private boolean running = false, server;
 	private int index, total;
 	private Player player;
 	private Player players[];
@@ -36,20 +37,18 @@ public class Game extends Canvas implements Runnable {
 
 	public Game(ChatSocket socket) {
 		this.socket = socket;
+		if(socket instanceof Server) server = true;
 		this.gameFrame = socket.getGameWindow();
 		this.frameTitle = gameFrame.getTitle();
 		Container c = this.gameFrame.getContentPane();
-//		this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		this.setSize(new Dimension(WIDTH, HEIGHT));
 		c.add(this, BorderLayout.CENTER);
-//		this.gameFrame.add(this, BorderLayout.CENTER);
 		System.out.println("Created game instance");
-//		start();
 		camera = new Camera(0, 0, this);
 		Dimension fieldSize = Field.checkField();
 		this.gameBoard = new char[fieldSize.height][fieldSize.width];
 		this.objectBoard = new GameObject[fieldSize.height][fieldSize.width];
-		field = new Field(this);
+		
 	}
 	
 	public void start() {
@@ -70,6 +69,7 @@ public class Game extends Canvas implements Runnable {
 	}
 	
 	public void createPlayers(int total) {
+		System.out.println("creating players");
 		players = new Player[total];
 		this.total = total;
 		for(int i = 0; i < this.total; i++) {
@@ -80,6 +80,11 @@ public class Game extends Canvas implements Runnable {
 				players[i] = new Player(this, 1, 1);
 			}
 		}
+	}
+	
+	public void createField(int terrain) {
+		System.out.println("creating field");
+		field = new Field(this, terrain);
 	}
 	
 	public void run() {
@@ -122,7 +127,9 @@ public class Game extends Canvas implements Runnable {
 	public void update() {
 		//update game objects here
 		field.update();
-		player.update();
+		for(int i = 0; i < total; i++) {
+			players[i].update();
+		}
 		camera.update(player);
 	}
 	
@@ -142,14 +149,16 @@ public class Game extends Canvas implements Runnable {
 		 * Place all rendering stuff below
 		 */
 		gameGraphics.setColor(Color.black);
-		gameGraphics.fillRect(0, 0, WIDTH, HEIGHT);
+		gameGraphics.drawImage(field.getTerrain(), 0, 0, getWidth() * getScale(), getHeight() * getScale(), null);
 		
 		gameGraphics2D.translate(camera.getX(), camera.getY());
 		
 		field.render(gameGraphics);
 		for(int i = 0; i < total; i++) {
+			if(i == index) continue;
 			players[i].render(gameGraphics);
 		}
+		player.render(gameGraphics);
 		
 		gameGraphics2D.translate(-camera.getX(), -camera.getY());
 		/*
@@ -211,6 +220,10 @@ public class Game extends Canvas implements Runnable {
 	
 	public ChatSocket getChatSocket() {
 		return this.socket;
+	}
+	
+	public boolean isServer() {
+		return server;
 	}
 
 }

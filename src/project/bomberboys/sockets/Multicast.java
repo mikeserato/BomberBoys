@@ -10,7 +10,14 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 import project.bomberboys.game.Game;
+import project.bomberboys.game.blocks.Block;
+import project.bomberboys.game.blocks.HardBlock;
+import project.bomberboys.game.blocks.SoftBlock;
 import project.bomberboys.game.bombs.Bomb;
+import project.bomberboys.sockets.datapackets.BlockPacket;
+import project.bomberboys.sockets.datapackets.BombPacket;
+import project.bomberboys.sockets.datapackets.ObjectPacket;
+import project.bomberboys.sockets.datapackets.PlayerPacket;
 
 
 public class Multicast implements Runnable {
@@ -84,27 +91,49 @@ public class Multicast implements Runnable {
 					//System.out.println("received (" + update.getX() + ", " + update.getY() + ") for index: " + update.getIndex());
 					game.getPlayers()[update.getIndex()].setX(update.getX());
 					game.getPlayers()[update.getIndex()].setY(update.getY());
+					game.getPlayers()[update.getIndex()].setVelX(update.getVelX());
+					game.getPlayers()[update.getIndex()].setVelY(update.getVelY());
+					game.getPlayers()[update.getIndex()].setAction(update.getAction());
 				}
 				
-				if(packet instanceof BombPacket){
+				else if(packet instanceof BombPacket){
 					BombPacket update = (BombPacket) packet;
 					
-					float x = game.getPlayers()[update.getIndex()].getX();
-					float y = game.getPlayers()[update.getIndex()].getY();
+					float x = packet.getX();
+					float y = packet.getY();
 					
 					int playerX = (int)((x - (int)x <= 0.5f) ? x : x + 1);
 					int playerY = (int)((y - (int)y <= 0.5f) ? y : y + 1);
 					
 					if(game.getGameBoard()[playerY][playerX] != 'o'){
-						Bomb b = new Bomb(game,update.getX(),update.getY(), game.getChatSocket(), game.getPlayers()[update.getIndex()]);
-						
-						game.getPlayers()[update.getIndex()].getBombs().add(b);
-						
 						game.getGameBoard()[playerY][playerX] = 'o';
-						game.getObjectBoard()[playerY][playerX] = b;	
+						Bomb b = new Bomb(game,update.getX(),update.getY(), game.getPlayers()[update.getIndex()], update.getCountDownTimer());
+						game.getPlayers()[update.getIndex()].getBombs().add(b);
+						game.getObjectBoard()[playerY][playerX] = b;
 					}
 				}
-
+				
+				else if(packet instanceof BlockPacket) {
+					BlockPacket update = (BlockPacket) packet;
+					
+					float x = update.getX();
+					float y = update.getY();
+					int intX = (int)update.getX();
+					int intY = (int)update.getY();
+					
+					if(game.getGameBoard()[intY][intX] == ' ') {
+						Block b = null;
+						if(update.getBlockType() == 0) {
+							b = new SoftBlock(game, x, y, update.getIndex(), true);
+						} else {
+							b = new HardBlock(game, x, y, update.getIndex(), true);
+						}
+						
+						game.getField().getBlocks().add(b);
+					}
+					
+					
+				}
 			} catch (IOException e) {
 	
 			}

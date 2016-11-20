@@ -3,11 +3,14 @@ package project.bomberboys.game.bombs;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 import project.bomberboys.game.Game;
 import project.bomberboys.game.GameObject;
 import project.bomberboys.game.actors.Player;
 import project.bomberboys.sockets.ChatSocket;
+import project.bomberboys.sockets.Multicast;
+import project.bomberboys.sockets.datapackets.BombPacket;
 import project.bomberboys.window.Animation;
 import project.bomberboys.window.BufferedImageLoader;
 import project.bomberboys.window.SpriteSheet;
@@ -16,7 +19,7 @@ public class Bomb extends GameObject {
 
 	private long timeLimit = 3000, countDownTimer;
 	private Player player;
-	private boolean exploding = false;
+	private boolean exploding = false, dummy = false, burnt = false;
 	private BufferedImageLoader imageLoader;
 	private int
 		explosionRange = 3,
@@ -45,17 +48,42 @@ public class Bomb extends GameObject {
 		fireSpritesHorizontal,
 		fireSpritesCenter;
 	
+	private Multicast udpThread;
+	private BombPacket obj;
+	
 	public Bomb(Game game, float x, float y, ChatSocket socket, Player player) {
 		super(game, socket.getUsername(), x, y);
 		this.player = player;
-		if(player.hasControlledExplosion()) {
+		if(player.getBombType().equals("remote")) {
 			this.countDownTimer = 0;
 		} else {
 			this.countDownTimer = System.currentTimeMillis();
 		}
+		
+		obj = new BombPacket(x, y, game.getIndex(), countDownTimer);
+		
+		try{
+			this.udpThread = new Multicast(game, obj);
+			this.udpThread.broadcast();
+		} catch(IOException e) {
+			
+		}
+		
 		this.imageLoader = new BufferedImageLoader();
 		loadBombSprite();
 		loadFireSprite();
+	}
+	
+	public Bomb(Game game, float x, float y, Player player, long countDownTimer) {
+		super(game, "", x, y);
+		dummy = true;
+		this.player = player;
+
+		this.imageLoader = new BufferedImageLoader();
+		loadBombSprite();
+		loadFireSprite();
+		
+		this.countDownTimer = countDownTimer;
 	}
 	
 	public void loadBombSprite() {
@@ -151,7 +179,13 @@ public class Bomb extends GameObject {
 				fireStreamVertical.animate();
 				fireStreamHorizontal.animate();
 				fireStreamCenter.animate();
-//				burn();
+				if(!burnt) {
+					burnObjects();
+					burnt = true;
+				}
+				for(int i = 0; i < game.getPlayers().length; i++) {
+					burnPlayer(game.getPlayers()[i]);
+				}
 			}
 			
 		}
@@ -181,16 +215,16 @@ public class Bomb extends GameObject {
 	
 	public void burn(char type, int y, int x) {
 		switch(type) {
-		case '+':
+//		case 'x':
 		case '#':
 		case '!':
-//			(game.getObjectBoard()[y][x]).destroy();
+			(game.getObjectBoard()[y][x]).destroy();
 			break;
 		case 'o':
-//			System.out.println("(" + x + ", " + y + ")");
 			if(!((Bomb)game.getObjectBoard()[y][x]).isExploding()) {
 //				System.out.println("chain explode");
 				((Bomb)game.getObjectBoard()[y][x]).resetTimer(this.countDownTimer - 500);
+//				((Bomb)game.getObjectBoard()[y][x]).chainExplode();
 			}
 			break;
 		default:
@@ -216,9 +250,40 @@ public class Bomb extends GameObject {
 		}
 	}
 	
+	public void burnPlayer(Player player) {
+		int y = (int) this.y, x = (int) this.x;
+		int 
+			playerX = (int)((player.getX() - (int)player.getX() <= 0.5f) ? player.getX() : player.getX() + 1),
+			playerY = (int)((player.getY() - (int)player.getY() <= 0.5f) ? player.getY() : player.getY() + 1);
+		
+		for(int i = 0; i <= explosionRange; i++) {
+			if(i <= wRange) {
+				if(playerY == y - i && playerX == x) {
+					player.destroy();
+				}
+			}
+			if(i <= sRange) {
+				if(playerY == y + i && playerX == x) {
+					player.destroy();
+				}
+			}
+			if(i <= aRange) {
+				if(playerY == y && playerX == x - i) {
+					player.destroy();
+				}
+			}
+			if(i <= dRange) {
+				if(playerY == y && playerX == x + i) {
+					player.destroy();
+				}
+			}
+		}
+	}
+	
 	public void explode() {
 		if(!exploding) {
 			exploding = true;
+			if(!dummy) this.player.decrementLiveBombs();
 			burnObjects();
 			timeLimit = 900;
 			countDownTimer = System.currentTimeMillis();

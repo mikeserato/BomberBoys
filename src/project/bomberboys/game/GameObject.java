@@ -8,6 +8,7 @@ public abstract class GameObject {
 	protected String user;
 	protected Game game;
 	protected float x, y, velX, velY, speed;
+	protected int life;
 	
 	public GameObject(Game game, String user, float x, float y) {
 		this.game = game;

@@ -3,18 +3,82 @@ package project.bomberboys.game.blocks;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 import project.bomberboys.game.Game;
 import project.bomberboys.game.GameObject;
+import project.bomberboys.sockets.Multicast;
+import project.bomberboys.window.Animation;
+import project.bomberboys.window.BufferedImageLoader;
 
 public class Block extends GameObject {
+	
+	private Multicast udpThread;
+//	private BlockPacket obj;
+	
+	protected Animation burningAnimation;
+	protected int life, intX, intY, blockType;
+	protected int index;
+	protected boolean burning, dummy;
+	protected long burningTimer;
+	protected BufferedImage terrain;
+	protected BufferedImage[] terrainSprites;
+	protected BufferedImageLoader imageLoader;
+	
 
-	public Block(Game game, float x, float y) {
+	public Block(Game game, float x, float y, int index, int blockType, boolean dummy) {
 		super(game, "game", x, y);
+		this.intX = (int)x;
+		this.intY = (int)y;
+		this.game = game;
+		this.index = index;
+		this.blockType = blockType;
+//		this.dummy = dummy;
+		
+//		if(!dummy) {
+//			obj = new BlockPacket(x, y, index, blockType, life, burning, burningTimer);
+//			
+//			try{
+//				this.udpThread = new Multicast(game, obj);
+//			} catch (IOException e) {
+//				
+//			}
+//			
+//			broadcast();
+//		}
+		
+		imageLoader = new BufferedImageLoader();
+		loadTerrain();
+	}
+	
+	public void loadTerrain() {
+		terrain = imageLoader.load("/img/field/terrain.png/");
 	}
 
 	public void update() {
-		
+		if(!dummy) {
+			if(burning) {
+				burningAnimation.animate();
+				if(System.currentTimeMillis() - burningTimer >= 900) {
+					game.getGameBoard()[intY][intX] = ' ';
+					game.getObjectBoard()[intY][intX] = null;
+					game.getField().getBlocks().remove(this);
+				}
+			}
+			
+//			obj.update(life, burning, burningTimer);
+//			udpThread.update(obj);
+//			broadcast();
+		}
+	}
+	
+	public void broadcast() {
+		try {
+			udpThread.broadcast();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void render(Graphics g) {
@@ -23,7 +87,14 @@ public class Block extends GameObject {
 	}
 
 	public void destroy() {
-		
+		if(!burning && !dummy) {
+			life--;
+			if(this.life == 0) {
+				burning = true;
+				System.out.println(burning);
+				burningTimer = System.currentTimeMillis();
+			}
+		}
 	}
 
 	public Rectangle getBounds() {

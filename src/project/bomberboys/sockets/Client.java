@@ -98,15 +98,18 @@ public class Client extends ChatSocket implements Runnable{
 				} else if(message.equals("::Game Start::") && sender.equals("")) {
 					this.game.start();
 					chatField.setEditable(true);
-					showMessage(message, false);
+//					showMessage(message, false);
 				} else if(message.contains("::Create Players::") && sender.equals("")) {
 					int total = Integer.parseInt(message.replace("::Create Players:: - ", ""));
 					game.createPlayers(total);
-					showMessage(message, false);
+//					showMessage(message, false);
+				} else if(message.contains("::Create Field::")) {
+					int terrain= Integer.parseInt(message.replace("::Create Field:: - ", ""));
+					game.createField(terrain);
 				} else if(sender.equals("")) {
 					index = Integer.parseInt(message);
 					game.setIndex(index);
-					showMessage(message, false);
+//					showMessage(message, false);
 				} else {
 					showMessage(sender + ": " + message, false);
 //					server.broadcast(message);

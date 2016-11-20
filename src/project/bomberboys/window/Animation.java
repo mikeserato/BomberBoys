@@ -75,4 +75,14 @@ public class Animation {
 			g2d.drawImage(image, (int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize()* game.getScale(), null);
 		}
 	}
+	
+	public void drawAnimation(Graphics g, float x, float y, int scaleX, int scaleY){
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.drawImage(image, (int)(x * game.getObjectSize()) * game.getScale(), (int)(y * game.getObjectSize()) * game.getScale(), game.getObjectSize() * game.getScale() * scaleX, game.getObjectSize() * game.getScale() * scaleY, null);
+	}
+	
+	public void drawAnimation(Graphics g, int x, int y, int width, int height) {
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.drawImage(image, x, y, width, height, null);
+	}
 }
