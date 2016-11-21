@@ -44,7 +44,13 @@ public class MouseHandler extends MouseAdapter{
 					break;
 				//Server panel case
 				case "Start!":
-					new Server(main.getPlayerCountTF(), main.getRoundCountTF(), main.getPortTF(), main);
+					if((main.getPlayerCountTF() % 2 == 0) && (main.getRoundCountTF() % 2 == 0)) {
+						cl.show(c, "errorPanel");
+					} else if((main.getPlayerCountTF() % 2 != 0) && (main.getRoundCountTF() % 2 != 0)) {
+						cl.show(c, "errorPanel");
+					} else {
+						new Server(main.getPlayerCountTF(), main.getRoundCountTF(), main.getPortTF(), main);
+					}
 					break;
 				
 				//Client panel case
