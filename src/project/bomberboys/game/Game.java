@@ -10,6 +10,7 @@ import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import project.bomberboys.game.actors.Player;
 import project.bomberboys.listeners.GameKeyListener;
@@ -34,21 +35,32 @@ public class Game extends Canvas implements Runnable {
 	private char[][] gameBoard;
 	private GameObject[][] objectBoard;
 	private Field field;
+	private JPanel gamePanel;
+	private PlayerStatus statusCanvas;
 
 	public Game(ChatSocket socket) {
 		this.socket = socket;
 		if(socket instanceof Server) server = true;
 		this.gameFrame = socket.getGameWindow();
 		this.frameTitle = gameFrame.getTitle();
+		
 		Container c = this.gameFrame.getContentPane();
+		
+		gamePanel = new JPanel(new BorderLayout());
 		this.setSize(new Dimension(WIDTH, HEIGHT));
-		c.add(this, BorderLayout.CENTER);
+		gamePanel.add(this, BorderLayout.CENTER);
+		
+		statusCanvas = new PlayerStatus(this, new Dimension(WIDTH, HEIGHT/8));
+		gamePanel.add(statusCanvas, BorderLayout.NORTH);
+		
+		c.add(gamePanel, BorderLayout.CENTER);
+		
 		System.out.println("Created game instance");
+		
 		camera = new Camera(0, 0, this);
 		Dimension fieldSize = Field.checkField();
 		this.gameBoard = new char[fieldSize.height][fieldSize.width];
 		this.objectBoard = new GameObject[fieldSize.height][fieldSize.width];
-		
 	}
 	
 	public void start() {
@@ -80,6 +92,7 @@ public class Game extends Canvas implements Runnable {
 				players[i] = new Player(this, 1, 1);
 			}
 		}
+		statusCanvas.init();
 	}
 	
 	public void createField(int terrain) {
@@ -136,6 +149,8 @@ public class Game extends Canvas implements Runnable {
 	public void render() {
 		Toolkit.getDefaultToolkit().sync();
 		BufferStrategy gameBuffer = this.getBufferStrategy();
+		
+		statusCanvas.render();
 		
 		if(gameBuffer == null) {
 			this.createBufferStrategy(3);

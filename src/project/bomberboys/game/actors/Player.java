@@ -36,7 +36,7 @@ public class Player extends GameObject implements Serializable {
 	protected BufferedImage sprite, invulnerableSprite, abilitySprite, cooldownSprite, frozenSprite;
 	protected String action = "s", pastAction;
 	protected BufferedImageLoader imageLoader;
-	protected int firePower = 3, bombLimit = 3;
+	protected int firePower = 3, bombLimit = 3, boots = 1;
 	protected String bombType = "";
 	
 	protected long deathTimer, invulnerableTimer;
@@ -355,6 +355,22 @@ public class Player extends GameObject implements Serializable {
 	
 	public void decrementLiveBombs() {
 		this.bombLimit++;
+	}
+	
+	public int getLife() {
+		return this.life;
+	}
+	
+	public int getFirePower() {
+		return this.firePower;
+	}
+	
+	public int getBombLimit() {
+		return this.bombLimit;
+	}
+	
+	public int getBoots() {
+		return this.boots;
 	}
 
 }
