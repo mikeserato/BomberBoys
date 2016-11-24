@@ -22,12 +22,12 @@ import project.bomberboys.window.BufferedImageLoader;
 import project.bomberboys.window.SpriteSheet;
 
 public class Player extends GameObject implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
 	private boolean chatActive;
 	private JTextField chatField;
 	private Multicast udpThread;
-	
+
 	private PlayerPacket obj;
 	protected LinkedList<Bomb> bombs;
 	protected ChatSocket socket;
@@ -38,23 +38,23 @@ public class Player extends GameObject implements Serializable {
 	protected BufferedImageLoader imageLoader;
 	protected int firePower = 3, bombLimit = 3, boots = 1;
 	protected String bombType = "";
-	
+
 	protected long deathTimer, invulnerableTimer;
 	protected boolean alive, invulnerable;
-	
+
 	private boolean dummy = false;
 
 	public Player(Game game, float x, float y, ChatSocket socket) {
 		super(game, socket.getUsername(), x, y);
-		this.life = 3;
+		this.life = 1;
 		this.socket = socket;
 		this.speed = 0.1f;
 		this.chatActive = false;
 		this.chatField = socket.getChatField();
 		this.alive = true;
-		
+
 		obj = new PlayerPacket(x, y, game.getIndex());
-		
+
 		try {
 			this.udpThread = new Multicast(game, obj);
 		} catch (IOException e) {}
@@ -63,16 +63,16 @@ public class Player extends GameObject implements Serializable {
 		loadImage();
 		createAnimation();
 	}
-	
+
 	public Player(Game game, float x, float y) {
 		super(game, "", x, y);
-		this.life = 3;
+		this.life = 1;
 		this.dummy = true;
 		this.bombs = new LinkedList<Bomb>();
 		loadImage();
 		createAnimation();
 	}
-	
+
 	public void createAnimation(){
 		forward		 = new Animation(game, 3, front);
 		backward	 = new Animation(game, 3, back);
@@ -81,7 +81,7 @@ public class Player extends GameObject implements Serializable {
 		waiting		 = new Animation(game, 5, idle);
 		dying		 = new Animation(game, 8, death);
 		winning		 = new Animation(game, 10, victory);
-		
+
 		forward.animate();
 		backward.animate();
 		leftward.animate();
@@ -89,11 +89,11 @@ public class Player extends GameObject implements Serializable {
 		waiting.animate();
 		dying.animate();
 		winning.animate();
-		
+
 		invulnerableAnimation = new Animation(game, 14, invulnerableImages);
 		invulnerableAnimation.animate();
 	}
-	
+
 	public void loadImage() {
 		imageLoader = new BufferedImageLoader();
 		sprite = imageLoader.load("/img/player/player" + 1 + ".png/");
@@ -105,7 +105,7 @@ public class Player extends GameObject implements Serializable {
 		idle	 = new BufferedImage[8];
 		death	 = new BufferedImage[8];
 		victory	 = new BufferedImage[8];
-		
+
 		invulnerableImages = new BufferedImage[20];
 		for(int i = 0; i < 8; i++) {
 			front[i]	 = SpriteSheet.grabImage(sprite, 1, i + 1, 18, 24);
@@ -116,14 +116,14 @@ public class Player extends GameObject implements Serializable {
 			death[i]	 = SpriteSheet.grabImage(sprite, 6, i + 1, 18, 24);
 			victory[i]	 = SpriteSheet.grabImage(sprite, 7, i + 1, 18, 24);
 		}
-		
+
 		for(int i = 0; i < 2; i++) {
 			for(int j = 0; j < 10; j++) {
 				invulnerableImages[(10 * i) + j] = SpriteSheet.grabImage(invulnerableSprite, i + 1, j + 1, 192, 192);
 			}
 		}
 	}
-	
+
 	public void stop(int k) {
 		switch(k) {
 		case KeyEvent.VK_W:
@@ -143,7 +143,7 @@ public class Player extends GameObject implements Serializable {
 			break;
 		}
 	}
-	
+
 	public void act(int k) {
 		switch(k) {
 		case KeyEvent.VK_W:
@@ -183,7 +183,7 @@ public class Player extends GameObject implements Serializable {
 			break;
 		}
 	}
-	
+
 	public void chat() {
 		chatActive = true;
 		if(chatActive) {
@@ -192,9 +192,9 @@ public class Player extends GameObject implements Serializable {
 		}
 		chatActive = false;
 	}
-	
+
 	public void setBomb() {
-		int 
+		int
 			playerX = (int)((x - (int)x <= 0.5f) ? x : x + 1),
 			playerY = (int)((y - (int)y <= 0.5f) ? y : y + 1);
 		if(bombLimit > 0 && (game.getGameBoard()[playerY][playerX] == ' ' || game.getGameBoard()[playerY][playerX] == 'v' || game.getGameBoard()[playerY][playerX] == '+')) {
@@ -205,9 +205,9 @@ public class Player extends GameObject implements Serializable {
 			bombLimit--;
 		}
 	}
-	
+
 	public void update() {
-		
+
 		for(int i = 0; i < bombs.size(); i++) {
 			bombs.get(i).update();
 		}
@@ -217,19 +217,19 @@ public class Player extends GameObject implements Serializable {
 				y += velY;
 				collide();
 				obj.update(x, y, velX, velY, action);
-				
+
 				udpThread.update(obj);
-				
+
 				broadcast();
 			}
-			
+
 			if(invulnerable) {
 				invulnerableAnimation.animate();
 				if(System.currentTimeMillis() - invulnerableTimer >= 5000) {
 					invulnerable = false;
 				}
 			}
-			
+
 			if(velX < 0) 		leftward.	animate();
 			else if(velX > 0)	rightward.	animate();
 			else if(velY < 0)	backward.	animate();
@@ -237,12 +237,13 @@ public class Player extends GameObject implements Serializable {
 		} else {
 			dying.animate();
 			if(System.currentTimeMillis() - deathTimer > 1000) {
+				life--;
 				respawn();
 			}
 		}
-		
+
 	}
-	
+
 	public void broadcast() {
 		try {
 			udpThread.broadcast();
@@ -250,10 +251,10 @@ public class Player extends GameObject implements Serializable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void collide() {
 		LinkedList<Block> blocks = game.getField().getBlocks();
-		
+
 		for(int i = 0; i <  blocks.size(); i++) {
 			Block block = blocks.get(i);
 			if(block.getBounds().intersects(getBoundsBot())) {
@@ -267,7 +268,7 @@ public class Player extends GameObject implements Serializable {
 			}
 		}
 	}
-	
+
 	public void render(Graphics g) {
 		for(int i = 0; i < bombs.size(); i++) {
 			Bomb b = bombs.get(i);
@@ -299,7 +300,7 @@ public class Player extends GameObject implements Serializable {
 			dying.drawAnimation(g, x, y);
 		}
 	}
-	
+
 	public void destroy() {
 		if(!invulnerable) {
 //			game.getSoundLoader().play("/sfx/player/dead.wav");
@@ -310,65 +311,68 @@ public class Player extends GameObject implements Serializable {
 			invulnerable = true;
 		}
 	}
-	
+
 	public void respawn() {
 		this.alive = true;
 		x = 1; y = 1;
 		invulnerableTimer = System.currentTimeMillis();
 		invulnerableAnimation.restart();
-		life--;
 		bombType = "normal";
 		action = "s";
 	}
-	
+
 	public LinkedList<Bomb> getBombs() {
 		return this.bombs;
 	}
-	
+
 	public Rectangle getBounds() {
 		return new Rectangle((int)(x * game.getObjectSize()) * game.getScale(), (int)(y * game.getObjectSize()) * game.getScale(), game.getObjectSize() * game.getScale(), game.getObjectSize() * game.getScale());
 	}
-	
+
 	public Rectangle getBoundsBot() {
 		return new Rectangle((int)(x * game.getObjectSize() + game.getObjectSize()/4) * game.getScale(), (int)(y * game.getObjectSize() + (game.getObjectSize() - game.getObjectSize()/4))  * game.getScale(), game.getObjectSize()/2 * game.getScale(), game.getObjectSize()/4 * game.getScale());
 	}
-	
+
 	public Rectangle getBoundsTop() {
 		return new Rectangle((int)(x * game.getObjectSize() + game.getObjectSize()/4) * game.getScale(),(int) (y * game.getObjectSize()) * game.getScale(), game.getObjectSize()/2 * game.getScale(), game.getObjectSize()/4 * game.getScale());
 	}
-	
+
 	public Rectangle getBoundsLeft() {
 		return new Rectangle((int)(x * game.getObjectSize()) * game.getScale(), (int)(y * game.getObjectSize() + (game.getObjectSize()/4)) * game.getScale(), game.getObjectSize()/4 * game.getScale(), game.getObjectSize()/2 * game.getScale());
 	}
-	
+
 	public Rectangle getBoundsRight() {
 		return new Rectangle((int)(x * game.getObjectSize() + game.getObjectSize() - game.getObjectSize()/4) * game.getScale(), (int)(y * game.getObjectSize() + (game.getObjectSize()/4)) * game.getScale(), game.getObjectSize()/4 * game.getScale(), game.getObjectSize()/2 * game.getScale());
 	}
-	
+
 	public String getBombType() {
 		return this.bombType;
 	}
-	
+
 	public void setAction(String action) {
 		this.action = action;
 	}
-	
+
 	public void decrementLiveBombs() {
 		this.bombLimit++;
 	}
-	
+
+	public void replenishLife() {
+		life = 3;
+	}
+
 	public int getLife() {
 		return this.life;
 	}
-	
+
 	public int getFirePower() {
 		return this.firePower;
 	}
-	
+
 	public int getBombLimit() {
 		return this.bombLimit;
 	}
-	
+
 	public int getBoots() {
 		return this.boots;
 	}

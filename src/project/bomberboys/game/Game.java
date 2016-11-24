@@ -10,6 +10,7 @@ import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import project.bomberboys.game.actors.Player;
@@ -21,7 +22,7 @@ import project.bomberboys.window.Camera;
 
 public class Game extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private final int HEIGHT = 400, WIDTH = 400, OBJECTSIZE = 12, scale = 2;
 	private boolean running = false, server;
 	private int index, total;
@@ -43,26 +44,26 @@ public class Game extends Canvas implements Runnable {
 		if(socket instanceof Server) server = true;
 		this.gameFrame = socket.getGameWindow();
 		this.frameTitle = gameFrame.getTitle();
-		
+
 		Container c = this.gameFrame.getContentPane();
-		
+
 		gamePanel = new JPanel(new BorderLayout());
 		this.setSize(new Dimension(WIDTH, HEIGHT));
 		gamePanel.add(this, BorderLayout.CENTER);
-		
+
 		statusCanvas = new PlayerStatus(this, new Dimension(WIDTH, HEIGHT/8));
 		gamePanel.add(statusCanvas, BorderLayout.NORTH);
-		
+
 		c.add(gamePanel, BorderLayout.CENTER);
-		
+
 		System.out.println("Created game instance");
-		
+
 		camera = new Camera(0, 0, this);
 		Dimension fieldSize = Field.checkField();
 		this.gameBoard = new char[fieldSize.height][fieldSize.width];
 		this.objectBoard = new GameObject[fieldSize.height][fieldSize.width];
 	}
-	
+
 	public void start() {
 		if(running) return;
 		else {
@@ -70,7 +71,7 @@ public class Game extends Canvas implements Runnable {
 			new Thread(this).start();
 		}
 	}
-	
+
 	public void stop() {
 		if(!running) return;
 		else {
@@ -79,7 +80,7 @@ public class Game extends Canvas implements Runnable {
 			this.socket.getMain().display();
 		}
 	}
-	
+
 	public void createPlayers(int total) {
 		System.out.println("creating players");
 		players = new Player[total];
@@ -94,18 +95,18 @@ public class Game extends Canvas implements Runnable {
 		}
 		statusCanvas.init();
 	}
-	
+
 	public void createField(int terrain) {
 		System.out.println("creating field");
 		field = new Field(this, terrain);
 	}
-	
+
 	public void run() {
-		
+
 		this.addKeyListener(new GameKeyListener(player));
 		System.out.println("Game Thread " + index + " started");
 		this.requestFocusInWindow();
-		
+
 		long lastTime = System.nanoTime();
 		double amountOfTicks = 60.0;
 		double ms = 1000000000/ amountOfTicks;
@@ -113,7 +114,7 @@ public class Game extends Canvas implements Runnable {
 		long timer = System.currentTimeMillis();
 		int updates = 0;
 		int frames = 0;
-		
+
 		while(running) {
 			long now = System.nanoTime();
 			delta += (now - lastTime)/ms;
@@ -125,7 +126,7 @@ public class Game extends Canvas implements Runnable {
 			}
 			render();
 			frames++;
-			
+
 			if(System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
 				gameFrame.setTitle(frameTitle + " | FPS/U:" + frames + "/" + updates);
@@ -135,108 +136,128 @@ public class Game extends Canvas implements Runnable {
 		}
 //		this.stop();
 	}
-	
+
 	/** GAME ENGINE METHODS **/
 	public void update() {
 		//update game objects here
 		field.update();
+
+		int counter = 0; 
+		String roundWinner = "";
+		//checks if only one 1 player has life of > -1
+		for(int i = 0; i < total; i++) {
+			if(players[i].getLife() > -1) {
+				counter++;
+				roundWinner = getChatSocket().getUsername();
+			}
+		}
+
+		if(counter == 1) {
+			JFrame frame = new JFrame("End of Round");
+			JOptionPane.showMessageDialog(frame, "Player " + roundWinner + " wins this round!");
+
+			for(int i = 0; i < total; i++) {
+				players[i].replenishLife();
+			}
+		}
+
 		for(int i = 0; i < total; i++) {
 			players[i].update();
 		}
 		camera.update(player);
 	}
-	
+
 	public void render() {
 		Toolkit.getDefaultToolkit().sync();
 		BufferStrategy gameBuffer = this.getBufferStrategy();
-		
+
 		statusCanvas.render();
-		
+
 		if(gameBuffer == null) {
 			this.createBufferStrategy(3);
 			return;
 		}
-		
+
 		Graphics gameGraphics = gameBuffer.getDrawGraphics(); //to be passed to objects for drawing
 		Graphics2D gameGraphics2D = (Graphics2D) gameGraphics;
-		
+
 		/*
 		 * Place all rendering stuff below
 		 */
 		gameGraphics.setColor(Color.black);
 		gameGraphics.drawImage(field.getTerrain(), 0, 0, getWidth() * getScale(), getHeight() * getScale(), null);
-		
+
 		gameGraphics2D.translate(camera.getX(), camera.getY());
-		
+
 		field.render(gameGraphics);
 		for(int i = 0; i < total; i++) {
 			if(i == index) continue;
 			players[i].render(gameGraphics);
 		}
 		player.render(gameGraphics);
-		
+
 		gameGraphics2D.translate(-camera.getX(), -camera.getY());
 		/*
 		 * Place all rendering stuff above
 		 */
-		
+
 		gameGraphics.dispose();
 		gameBuffer.show();
 	}
 	/** GAME ENGINE METHODS **/
-	
+
 	public int getHeight() {
 		return this.HEIGHT;
 	}
-	
+
 	public int getWidth() {
 		return this.WIDTH;
 	}
-	
+
 	public int getScale() {
 		return this.scale;
 	}
-	
+
 	public int getObjectSize() {
 		return this.OBJECTSIZE;
 	}
-	
+
 	public int getBoardHeight() {
 		return this.boardHeight;
 	}
-	
+
 	public int getBoardWidth() {
 		return this.boardWidth;
 	}
-	
+
 	public char[][] getGameBoard()  {
 		return this.gameBoard;
 	}
-	
+
 	public GameObject[][] getObjectBoard() {
 		return this.objectBoard;
 	}
-	
+
 	public Field getField() {
 		return this.field;
 	}
-	
+
 	public Player[] getPlayers() {
 		return this.players;
 	}
-	
+
 	public int getIndex() {
 		return this.index;
 	}
-	
+
 	public void setIndex(int index) {
 		this.index = index;
 	}
-	
+
 	public ChatSocket getChatSocket() {
 		return this.socket;
 	}
-	
+
 	public boolean isServer() {
 		return server;
 	}

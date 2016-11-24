@@ -60,7 +60,7 @@ public class MainBoom {
 		label = new JLabel("Number of Players:");
 		subPanel.add(label);
 		playerCountTF = new JTextField(10);
-		playerCountTF.setText("4");
+		playerCountTF.setText("2");
 		subPanel.add(playerCountTF);
 		serverPanel.add(subPanel);
 
