@@ -50,7 +50,7 @@ public class Player extends GameObject implements Serializable {
 
 	public Player(Game game, float x, float y, int score, ChatSocket socket) {
 		super(game, socket.getUsername(), x, y);
-		this.life = 3;
+		this.life = 1;
 		this.socket = socket;
 		this.speed = 0.1f;
 		this.chatActive = false;
@@ -71,7 +71,7 @@ public class Player extends GameObject implements Serializable {
 
 	public Player(Game game, float x, float y, int score) {
 		super(game, "", x, y);
-		this.life = 3;
+		this.life = 1;
 		this.alive = true;
 		this.dummy = true;
 		this.score = 0;
@@ -393,7 +393,7 @@ public class Player extends GameObject implements Serializable {
 	}
 
 	public void replenishLife() {
-		this.life = 3;
+		this.life = 1;
 	}
 
 	public int getScore() {
