@@ -10,12 +10,10 @@ public abstract class GameObject {
 	protected float x, y, velX, velY, speed;
 	protected int life, score;
 
-	public GameObject(Game game, String user, float x, float y, int life, int score) {
+	public GameObject(Game game, String user, float x, float y) {
 		this.game = game;
 		this.x = x;
 		this.y = y;
-		this.life = life;
-		this.score = score;
 		this.user = user;
 	}
 
@@ -31,11 +29,11 @@ public abstract class GameObject {
 		return this.y;
 	}
 
-	public float getLife() {
+	public int getLife() {
 		return this.life;
 	}
 
-	public float getScore() {
+	public int getScore() {
 		return this.score;
 	}
 

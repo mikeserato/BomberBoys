@@ -43,7 +43,6 @@ public class Player extends GameObject implements Serializable {
 	protected LinkedList<SpawnPoint> spawnPoints = null;
 	protected SpawnPoint sp;
 	
-	protected int score;
 	protected long deathTimer, invulnerableTimer;
 	protected boolean alive, invulnerable;
 
@@ -75,6 +74,7 @@ public class Player extends GameObject implements Serializable {
 		this.life = 3;
 		this.alive = true;
 		this.dummy = true;
+		this.score = 0;
 		this.bombs = new LinkedList<Bomb>();
 		this.score = 0;
 		loadImage();
@@ -329,11 +329,11 @@ public class Player extends GameObject implements Serializable {
 			}
 			Random rand = new Random();
 			sp = spawnPoints.get(rand.nextInt(spawnPoints.size()));
-			
+
 			while(sp.isUsed()) {
 				sp = spawnPoints.get(rand.nextInt(spawnPoints.size()));
 			}
-			
+
 			sp.setUsed(true);
 			x = sp.getX(); y = sp.getY();
 		} else {
@@ -387,19 +387,19 @@ public class Player extends GameObject implements Serializable {
 	public void decrementLiveBombs() {
 		this.bombLimit++;
 	}
-	
-	public void replenishLife() {
-		this.life = 3;
-	}
 
 	public void increaseScore() {
 		this.score++;
 	}
 
+	public void replenishLife() {
+		this.life = 3;
+	}
+
 	public int getScore() {
 		return this.score;
 	}
-	
+
 	public void setSpawnPoints(LinkedList<SpawnPoint> spawnPoints) {
 		this.spawnPoints = spawnPoints;
 	}
