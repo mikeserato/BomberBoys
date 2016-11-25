@@ -60,7 +60,8 @@ public class Bomb extends GameObject {
 			this.countDownTimer = System.currentTimeMillis();
 		}
 		
-		obj = new BombPacket(x, y, game.getIndex(), countDownTimer);
+		int score = 0;
+		obj = new BombPacket(x, y, life, score, game.getIndex(), countDownTimer);
 		
 		try{
 			this.udpThread = new Multicast(game, obj);

@@ -87,10 +87,10 @@ public class Game extends Canvas implements Runnable {
 		this.total = total;
 		for(int i = 0; i < this.total; i++) {
 			if(i == index) {
-				player = new Player(this, 1, 1, socket);
+				player = new Player(this, 1, 1, 0, socket);
 				players[i] = player;
 			} else {
-				players[i] = new Player(this, 1, 1);
+				players[i] = new Player(this, 1, 1, 0);
 			}
 		}
 		statusCanvas.init();
@@ -145,7 +145,7 @@ public class Game extends Canvas implements Runnable {
 		//update game objects here
 		field.update();
 
-		int counter = 0; 
+		int counter = 0;
 		String roundWinner = "";
 		//checks if only one 1 player has life of > -1
 		for(int i = 0; i < total; i++) {
@@ -159,14 +159,22 @@ public class Game extends Canvas implements Runnable {
 			JOptionPane.showMessageDialog(null, "Player " + roundWinner + " wins this round!");
 
 			for(int i = 0; i < total; i++) {
+				if(players[i].getLife() > -1) {
+					players[i].increaseScore();
+					if(players[i].getScore() == socket.getMain().getRoundCountTF()) {
+						JFrame endFrame = new JFrame("End of Game");
+						JOptionPane.showMessageDialog(endFrame, "Player " + roundWinner + " is the winner!");
+						System.exit(0);
+					}
+				}
 				players[i].replenishLife();
 			}
+		} else {
+			for(int i = 0; i < total; i++) {
+				players[i].update();
+			}
+			camera.update(player);
 		}
-
-		for(int i = 0; i < total; i++) {
-			players[i].update();
-		}
-		camera.update(player);
 	}
 
 	public void render() {

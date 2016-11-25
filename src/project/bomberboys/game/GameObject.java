@@ -8,59 +8,77 @@ public abstract class GameObject {
 	protected String user;
 	protected Game game;
 	protected float x, y, velX, velY, speed;
-	protected int life;
-	
-	public GameObject(Game game, String user, float x, float y) {
+	protected int life, score;
+
+	public GameObject(Game game, String user, float x, float y, int life, int score) {
 		this.game = game;
 		this.x = x;
 		this.y = y;
+		this.life = life;
+		this.score = score;
 		this.user = user;
 	}
-	
+
 	public String getUser() {
 		return this.user;
 	}
-	
+
 	public float getX() {
 		return this.x;
 	}
-	
+
 	public float getY() {
 		return this.y;
 	}
-	
+
+	public float getLife() {
+		return this.life;
+	}
+
+	public float getScore() {
+		return this.score;
+	}
+
 	public float getVelX() {
 		return this.velX;
 	}
-	
+
 	public float getVelY() {
 		return this.velY;
 	}
-	
+
 	public float getSpeed() {
 		return this.speed;
 	}
-	
+
 	public void setX(float x) {
 		this.x = x;
 	}
-	
+
 	public void setY(float y) {
 		this.y = y;
 	}
-	
+
+	public void setLife(int life) {
+		this.life = life;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+	}
+
 	public void setVelX(float velX) {
 		this.velX = velX;
 	}
-	
+
 	public void setVelY(float velY) {
 		this.velY = velY;
 	}
-	
+
 	public void setSpeed(float speed) {
 		this.speed = speed;
 	}
-	
+
 	public abstract void update();
 	public abstract void render(Graphics g);
 	public abstract void destroy();

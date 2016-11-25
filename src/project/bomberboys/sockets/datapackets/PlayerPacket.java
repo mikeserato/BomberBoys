@@ -9,13 +9,13 @@ public class PlayerPacket extends ObjectPacket {
 	private float velX, velY;
 	private String action;
 	
-	public PlayerPacket(float x, float y, int index) {
-		super(x, y);
+	public PlayerPacket(float x, float y, int life, int score, int index) {
+		super(x, y, life, score);
 		this.index = index;
 	}
 	
-	public void update(float x, float y, float velX, float velY, String action) {
-		super.update(x, y);
+	public void update(float x, float y, int life, int score, float velX, float velY, String action) {
+		super.update(x, y, life, score);
 		this.velX = velX;
 		this.velY = velY;
 		this.action = action;
