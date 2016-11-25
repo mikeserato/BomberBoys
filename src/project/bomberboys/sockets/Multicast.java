@@ -21,7 +21,7 @@ import project.bomberboys.sockets.datapackets.PlayerPacket;
 
 
 public class Multicast implements Runnable {
-	
+
 	Game game;
 	MulticastSocket socket;
 	int port = 4445;
@@ -33,18 +33,18 @@ public class Multicast implements Runnable {
 		socket = new MulticastSocket(port);
 		socket.joinGroup(group);
 		this.object = object;
-		
+
 		start();
 	}
-	
+
 	public void start() {
 		try {
 			new Thread(this).start();
 		} catch (Exception e) {
-			
+
 		}
 	}
-	
+
 	public void broadcast() throws IOException {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream(6400);
 		final ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -56,27 +56,27 @@ public class Multicast implements Runnable {
 		socket.send(packet);
 
 	}
-	
+
 	public ObjectPacket receive() throws IOException {
 		ObjectPacket  ObjectPacket = null;
-		
+
 		byte buffer[] = new byte[6400];
 		DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 		socket.receive(packet);
-		
+
 		final ByteArrayInputStream bais = new ByteArrayInputStream(buffer);
 		final ObjectInputStream ois = new ObjectInputStream(bais);
-		
+
 		try {
 			ObjectPacket = (ObjectPacket) ois.readObject();
 		} catch (ClassNotFoundException e) {
 
 		}
-		
+
 		return(ObjectPacket);
-		
+
 	}
-	
+
 	public void update(ObjectPacket object) {
 		this.object = object;
 	}
@@ -85,26 +85,28 @@ public class Multicast implements Runnable {
 		while(true){
 			try {
 				ObjectPacket packet = (ObjectPacket)receive();
-				
+
 				if(packet instanceof PlayerPacket){
 					PlayerPacket update = (PlayerPacket) packet;
 					//System.out.println("received (" + update.getX() + ", " + update.getY() + ") for index: " + update.getIndex());
 					game.getPlayers()[update.getIndex()].setX(update.getX());
 					game.getPlayers()[update.getIndex()].setY(update.getY());
+					game.getPlayers()[update.getIndex()].setLife(update.getLife());
+					game.getPlayers()[update.getIndex()].setScore(update.getScore());
 					game.getPlayers()[update.getIndex()].setVelX(update.getVelX());
 					game.getPlayers()[update.getIndex()].setVelY(update.getVelY());
 					game.getPlayers()[update.getIndex()].setAction(update.getAction());
 				}
-				
+
 				else if(packet instanceof BombPacket){
 					BombPacket update = (BombPacket) packet;
-					
+
 					float x = packet.getX();
 					float y = packet.getY();
-					
+
 					int playerX = (int)((x - (int)x <= 0.5f) ? x : x + 1);
 					int playerY = (int)((y - (int)y <= 0.5f) ? y : y + 1);
-					
+
 					if(game.getGameBoard()[playerY][playerX] != 'o'){
 						game.getGameBoard()[playerY][playerX] = 'o';
 						Bomb b = new Bomb(game,update.getX(),update.getY(), game.getPlayers()[update.getIndex()], update.getCountDownTimer());
@@ -112,15 +114,15 @@ public class Multicast implements Runnable {
 						game.getObjectBoard()[playerY][playerX] = b;
 					}
 				}
-				
+
 				else if(packet instanceof BlockPacket) {
 					BlockPacket update = (BlockPacket) packet;
-					
+
 					float x = update.getX();
 					float y = update.getY();
 					int intX = (int)update.getX();
 					int intY = (int)update.getY();
-					
+
 					if(game.getGameBoard()[intY][intX] == ' ') {
 						Block b = null;
 						if(update.getBlockType() == 0) {
@@ -128,14 +130,14 @@ public class Multicast implements Runnable {
 						} else {
 							b = new HardBlock(game, x, y, update.getIndex(), true);
 						}
-						
+
 						game.getField().getBlocks().add(b);
 					}
-					
-					
+
+
 				}
 			} catch (IOException e) {
-	
+
 			}
 		}
 	}

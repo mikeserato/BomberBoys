@@ -38,13 +38,14 @@ public class Player extends GameObject implements Serializable {
 	protected BufferedImageLoader imageLoader;
 	protected int firePower = 3, bombLimit = 3, boots = 1;
 	protected String bombType = "";
+	protected int score;
 
 	protected long deathTimer, invulnerableTimer;
 	protected boolean alive, invulnerable;
 
 	private boolean dummy = false;
 
-	public Player(Game game, float x, float y, ChatSocket socket) {
+	public Player(Game game, float x, float y, int score, ChatSocket socket) {
 		super(game, socket.getUsername(), x, y);
 		this.life = 1;
 		this.socket = socket;
@@ -52,8 +53,9 @@ public class Player extends GameObject implements Serializable {
 		this.chatActive = false;
 		this.chatField = socket.getChatField();
 		this.alive = true;
+		this.score = 0;
 
-		obj = new PlayerPacket(x, y, game.getIndex());
+		obj = new PlayerPacket(x, y, life, score, game.getIndex());
 
 		try {
 			this.udpThread = new Multicast(game, obj);
@@ -64,11 +66,12 @@ public class Player extends GameObject implements Serializable {
 		createAnimation();
 	}
 
-	public Player(Game game, float x, float y) {
+	public Player(Game game, float x, float y, int score) {
 		super(game, "", x, y);
 		this.life = 1;
 		this.dummy = true;
 		this.bombs = new LinkedList<Bomb>();
+		this.score = 0;
 		loadImage();
 		createAnimation();
 	}
@@ -216,7 +219,7 @@ public class Player extends GameObject implements Serializable {
 				x += velX;
 				y += velY;
 				collide();
-				obj.update(x, y, velX, velY, action);
+				obj.update(x, y, life, score, velX, velY, action);
 
 				udpThread.update(obj);
 
@@ -349,6 +352,13 @@ public class Player extends GameObject implements Serializable {
 		return this.bombType;
 	}
 
+	public void setLife(int life) {
+		this.life = life;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+	}
 	public void setAction(String action) {
 		this.action = action;
 	}
@@ -358,7 +368,15 @@ public class Player extends GameObject implements Serializable {
 	}
 
 	public void replenishLife() {
-		life = 3;
+		this.life = 3;
+	}
+
+	public void increaseScore() {
+		this.score++;
+	}
+
+	public int getScore() {
+		return this.score;
 	}
 
 	public int getLife() {

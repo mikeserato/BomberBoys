@@ -11,8 +11,8 @@ public class BombPacket extends ObjectPacket {
 		dRange;
 	private long countDownTimer;
 	
-	public BombPacket(float x, float y, int index, long countDownTimer) {
-		super(x, y);
+	public BombPacket(float x, float y, int life, int score, int index, long countDownTimer) {
+		super(x, y, life, score);
 		this.index = index;
 		this.countDownTimer = countDownTimer;
 	}

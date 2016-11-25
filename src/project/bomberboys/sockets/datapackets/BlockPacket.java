@@ -7,8 +7,8 @@ public class BlockPacket extends ObjectPacket{
 	private boolean burning;
 	private long burningTimer;
 
-	public BlockPacket(float x, float y, int index, int blockType, int life, boolean burning, long burningTimer) {
-		super(x, y);
+	public BlockPacket(float x, float y, int index, int blockType, int life, int score, boolean burning, long burningTimer) {
+		super(x, y, life, score);
 		this.index = index;
 		this.blockType = blockType;
 	}
@@ -23,6 +23,10 @@ public class BlockPacket extends ObjectPacket{
 	
 	public int getLife() {
 		return life;
+	}
+	
+	public int getScore() {
+		return score;
 	}
 	
 	public boolean isBurning() {
