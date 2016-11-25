@@ -23,6 +23,7 @@ public class Field {
 	private int index;
 	private static int width = 5, height = 5;
 	private LinkedList<Block> blocks;
+	private LinkedList<SpawnPoint> spawnPoints;
 	private static BufferedImageLoader loader;
 	private static BufferedImage fieldImage;
 	
@@ -32,6 +33,7 @@ public class Field {
 		this.gameBoard = game.getGameBoard();
 		this.objectBoard = game.getObjectBoard();
 		this.blocks = new LinkedList<Block>();
+		this.spawnPoints = new LinkedList<SpawnPoint>();
 		
 		terrain = SpriteSheet.grabImage(imageLoader.load("/img/field/terrain" + index + ".png/"), 1, 1, game.getWidth(), game.getHeight());
 		/*if(game.isServer())*/ initField();
@@ -70,7 +72,7 @@ public class Field {
 	}
 	
 	public void initField() {
-//		fieldImage = loader.load("/img/field/field64.png");
+		
 		for(int i = 0; i < height; i++) {
 			for(int j = 0; j < width; j++) {
 				int pixel = fieldImage.getRGB(j, i);
@@ -85,6 +87,9 @@ public class Field {
 					blocks.add(b);
 				} else if ((red == 0) && (green == 0) && (blue == 255)) {
 					gameBoard[i][j] = '+';
+					SpawnPoint sp = new SpawnPoint(game, j, i);
+					objectBoard[i][j] = sp;
+					spawnPoints.add(sp);
 				} else if ((red == 255) && (green == 0) && (blue == 0)) {
 					gameBoard[i][j] = 'v';
 				} else {
@@ -92,7 +97,9 @@ public class Field {
 				}
 			}
 		}
-//		randomizeField();
+		
+		game.getPlayers()[game.getIndex()].setSpawnPoints(spawnPoints);
+		
 		if(game.isServer()) {
 			((Server) game.getChatSocket()).broadcast("::Game Start::", "");
 			game.start();
@@ -133,6 +140,10 @@ public class Field {
 	
 	public LinkedList<Block> getBlocks() {
 		return this.blocks;
+	}
+	
+	public LinkedList<SpawnPoint> getSpawnPoints() {
+		return this.spawnPoints;
 	}
 	
 	public BufferedImage getTerrain() {

@@ -1,26 +1,39 @@
 package project.bomberboys.game;
 
-public class SpawnPoint {
+import java.awt.Graphics;
+import java.awt.Rectangle;
 
-	private int x, y;
+public class SpawnPoint extends GameObject{
+
 	private boolean used;
 	
-	public SpawnPoint(int y, int x) {
-		this.x = x;
-		this.y = y;
+	public SpawnPoint(Game game, float x, float y) {
+		super(game, "", x, y);
 		this.used = false;
-	}
-	
-	public int getX() {
-		return this.x;
-	}
-	
-	public int getY() {
-		return this.y;
 	}
 	
 	public boolean isUsed() {
 		return used;
+	}
+	
+	public void setUsed(boolean used) {
+		this.used = used;
+	}
+	
+	public void update() {
+		
+	}
+	
+	public void render(Graphics g) {
+		
+	}
+	
+	public void destroy() {
+		
+	}
+	
+	public Rectangle getBounds() {
+		return null;
 	}
 
 }

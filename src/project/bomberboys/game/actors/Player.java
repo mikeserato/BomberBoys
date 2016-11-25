@@ -7,11 +7,13 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.LinkedList;
+import java.util.Random;
 
 import javax.swing.JTextField;
 
 import project.bomberboys.game.Game;
 import project.bomberboys.game.GameObject;
+import project.bomberboys.game.SpawnPoint;
 import project.bomberboys.game.blocks.Block;
 import project.bomberboys.game.bombs.Bomb;
 import project.bomberboys.sockets.ChatSocket;
@@ -38,7 +40,9 @@ public class Player extends GameObject implements Serializable {
 	protected BufferedImageLoader imageLoader;
 	protected int firePower = 3, bombLimit = 3, boots = 1;
 	protected String bombType = "";
-
+	protected LinkedList<SpawnPoint> spawnPoints = null;
+	protected SpawnPoint sp;
+	
 	protected long deathTimer, invulnerableTimer;
 	protected boolean alive, invulnerable;
 
@@ -46,7 +50,7 @@ public class Player extends GameObject implements Serializable {
 
 	public Player(Game game, float x, float y, ChatSocket socket) {
 		super(game, socket.getUsername(), x, y);
-		this.life = 1;
+		this.life = 3;
 		this.socket = socket;
 		this.speed = 0.1f;
 		this.chatActive = false;
@@ -66,7 +70,8 @@ public class Player extends GameObject implements Serializable {
 
 	public Player(Game game, float x, float y) {
 		super(game, "", x, y);
-		this.life = 1;
+		this.life = 3;
+		this.alive = true;
 		this.dummy = true;
 		this.bombs = new LinkedList<Bomb>();
 		loadImage();
@@ -197,7 +202,7 @@ public class Player extends GameObject implements Serializable {
 		int
 			playerX = (int)((x - (int)x <= 0.5f) ? x : x + 1),
 			playerY = (int)((y - (int)y <= 0.5f) ? y : y + 1);
-		if(bombLimit > 0 && (game.getGameBoard()[playerY][playerX] == ' ' || game.getGameBoard()[playerY][playerX] == 'v' || game.getGameBoard()[playerY][playerX] == '+')) {
+		if(bombLimit > 0 && (game.getGameBoard()[playerY][playerX] == ' ' || game.getGameBoard()[playerY][playerX] == 'v' || game.getGameBoard()[playerY][playerX] == ' ')) {
 			game.getGameBoard()[playerY][playerX] = 'o';
 			Bomb b = new Bomb(game, playerX, playerY, socket, this);
 			bombs.add(b);
@@ -213,6 +218,7 @@ public class Player extends GameObject implements Serializable {
 		}
 		if(alive) {
 			if(!dummy) {
+				sp.setUsed(false);
 				x += velX;
 				y += velY;
 				collide();
@@ -314,7 +320,22 @@ public class Player extends GameObject implements Serializable {
 
 	public void respawn() {
 		this.alive = true;
-		x = 1; y = 1;
+		if(!dummy) {
+			if(spawnPoints == null) {
+				spawnPoints = game.getField().getSpawnPoints();
+			}
+			Random rand = new Random();
+			sp = spawnPoints.get(rand.nextInt(spawnPoints.size()));
+			
+			while(sp.isUsed()) {
+				sp = spawnPoints.get(rand.nextInt(spawnPoints.size()));
+			}
+			
+			sp.setUsed(true);
+			x = sp.getX(); y = sp.getY();
+		} else {
+			x = 1; y = 1;
+		}
 		invulnerableTimer = System.currentTimeMillis();
 		invulnerableAnimation.restart();
 		bombType = "normal";
@@ -356,9 +377,13 @@ public class Player extends GameObject implements Serializable {
 	public void decrementLiveBombs() {
 		this.bombLimit++;
 	}
-
+	
 	public void replenishLife() {
 		life = 3;
+	}
+	
+	public void setSpawnPoints(LinkedList<SpawnPoint> spawnPoints) {
+		this.spawnPoints = spawnPoints;
 	}
 
 	public int getLife() {

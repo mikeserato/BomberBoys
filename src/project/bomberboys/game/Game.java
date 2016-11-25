@@ -105,6 +105,9 @@ public class Game extends Canvas implements Runnable {
 
 		this.addKeyListener(new GameKeyListener(player));
 		System.out.println("Game Thread " + index + " started");
+		
+		this.player.respawn();
+		
 		this.requestFocusInWindow();
 
 		long lastTime = System.nanoTime();
@@ -146,15 +149,14 @@ public class Game extends Canvas implements Runnable {
 		String roundWinner = "";
 		//checks if only one 1 player has life of > -1
 		for(int i = 0; i < total; i++) {
-			if(players[i].getLife() > -1) {
+			if(players[i].getLife() > 0) {
 				counter++;
 				roundWinner = getChatSocket().getUsername();
 			}
 		}
 
 		if(counter == 1) {
-			JFrame frame = new JFrame("End of Round");
-			JOptionPane.showMessageDialog(frame, "Player " + roundWinner + " wins this round!");
+			JOptionPane.showMessageDialog(null, "Player " + roundWinner + " wins this round!");
 
 			for(int i = 0; i < total; i++) {
 				players[i].replenishLife();

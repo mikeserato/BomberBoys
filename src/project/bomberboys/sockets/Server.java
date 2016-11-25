@@ -116,14 +116,15 @@ public class Server extends ChatSocket {
 		}
 		index = playerCount;
 		game.setIndex(index);
-//		this.showMessage("" + index + "", false);
+		
 		this.broadcast("::Create Players:: - " + (playerCount + 1), "");
-//		this.showMessage("::Create Players::", false);
 		game.createPlayers(playerCount + 1);
+		
 		Random rand = new Random();
 		int terrain = rand.nextInt(7) + 1;
 		this.broadcast("::Create Field:: - " + terrain, "");
 		game.createField(terrain);
+		
 		System.out.println("All players are connected");
 		
 //		this.broadcast("::Game Start::", "");
