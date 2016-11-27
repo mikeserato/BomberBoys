@@ -48,6 +48,10 @@ public abstract class GameObject {
 	public float getSpeed() {
 		return this.speed;
 	}
+	
+	public void setUser(String user) {
+		this.user = user;
+	}
 
 	public void setX(float x) {
 		this.x = x;

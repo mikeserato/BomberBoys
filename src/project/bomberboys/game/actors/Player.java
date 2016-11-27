@@ -58,7 +58,7 @@ public class Player extends GameObject implements Serializable {
 		this.alive = true;
 		this.score = 0;
 
-		obj = new PlayerPacket(x, y, life, score, game.getIndex());
+		obj = new PlayerPacket(socket.getUsername(), x, y, life, score, game.getIndex());
 
 		try {
 			this.udpThread = new Multicast(game, obj);
@@ -380,6 +380,7 @@ public class Player extends GameObject implements Serializable {
 	public void setScore(int score) {
 		this.score = score;
 	}
+	
 	public void setAction(String action) {
 		this.action = action;
 	}

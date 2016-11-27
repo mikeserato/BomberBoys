@@ -5,13 +5,15 @@ public class PlayerPacket extends ObjectPacket {
 	
 	private static final long serialVersionUID = 1L;
 	protected int index;
-
+	
+	private String username;
 	private float velX, velY;
 	private String action;
 	
-	public PlayerPacket(float x, float y, int life, int score, int index) {
+	public PlayerPacket(String username, float x, float y, int life, int score, int index) {
 		super(x, y, life, score);
 		this.index = index;
+		this.username = username;
 	}
 	
 	public void update(float x, float y, int life, int score, float velX, float velY, String action) {
@@ -35,6 +37,10 @@ public class PlayerPacket extends ObjectPacket {
 	
 	public String getAction() {
 		return action;
+	}
+	
+	public String getUsername() {
+		return username;
 	}
 
 }

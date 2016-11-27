@@ -89,6 +89,7 @@ public class Multicast implements Runnable {
 				if(packet instanceof PlayerPacket){
 					PlayerPacket update = (PlayerPacket) packet;
 					//System.out.println("received (" + update.getX() + ", " + update.getY() + ") for index: " + update.getIndex());
+					game.getPlayers()[update.getIndex()].setUser(update.getUsername());
 					game.getPlayers()[update.getIndex()].setX(update.getX());
 					game.getPlayers()[update.getIndex()].setY(update.getY());
 					game.getPlayers()[update.getIndex()].setLife(update.getLife());
