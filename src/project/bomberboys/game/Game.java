@@ -150,35 +150,28 @@ public class Game extends Canvas implements Runnable {
 		field.update();
 
 		int counter = 0;
+		int winnerIndex = 0;
+		String winnerName = "";
 		//checks if only one 1 player has life of > -1
 		for(int i = 0; i < total; i++) {
 			if(players[i].getLife() > 0) {
 				counter++;
+				winnerName = players[i].getUsername();
+				winnerIndex = i;
 			}
 		}
 
 		if(counter == 1) {
-			//JOptionPane.showMessageDialog(null, "Player " + roundWinner + " wins this round!");
-			
-			boolean hasWinner = false;
-			for(int i = 0; i < total; i++) {
-				if(players[i].getLife() > -1) {
-					JOptionPane.showMessageDialog(null, "You won this round!"); //para lang di muna kunin yung name
-					players[i].increaseScore();
-					if(players[i].getScore() == socket.getMain().getRoundCountTF()) {
-						hasWinner = true;
-					}
-				} else {
-					JOptionPane.showMessageDialog(null, "You lost this round!");
-				}
+			players[winnerIndex].increaseScore();
 
-				if(hasWinner) {
-					JFrame endFrame = new JFrame("End of Game");
-					JOptionPane.showMessageDialog(endFrame, "There is a winner!");
-					stop();
-				}
-				
-				players[i].replenishLife();
+			if(players[winnerIndex].getScore() == socket.getMain().getRoundCountTF()) {
+				JFrame endFrame = new JFrame("End of Game");
+				JOptionPane.showMessageDialog(endFrame, winnerName + " is the winner!");
+				for(int i = 0; i < total; i++) stop();
+			} else {
+				JFrame roundFrame = new JFrame("End of Round");
+				JOptionPane.showMessageDialog(roundFrame, winnerName + " is the winner for this round!");
+				for(int i = 0; i < total; i++) players[i].replenishLife();
 			}
 		} else {
 			for(int i = 0; i < total; i++) {

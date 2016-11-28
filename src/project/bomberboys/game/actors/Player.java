@@ -42,11 +42,12 @@ public class Player extends GameObject implements Serializable {
 	protected String bombType = "";
 	protected LinkedList<SpawnPoint> spawnPoints = null;
 	protected SpawnPoint sp;
-	
+
 	protected long deathTimer, invulnerableTimer;
 	protected boolean alive, invulnerable;
 
 	private boolean dummy = false;
+	private String username;
 
 	public Player(Game game, float x, float y, int score, ChatSocket socket) {
 		super(game, socket.getUsername(), x, y);
@@ -57,6 +58,7 @@ public class Player extends GameObject implements Serializable {
 		this.chatField = socket.getChatField();
 		this.alive = true;
 		this.score = 0;
+		this.username = this.getUser();
 
 		obj = new PlayerPacket(socket.getUsername(), x, y, life, score, game.getIndex());
 
@@ -77,6 +79,7 @@ public class Player extends GameObject implements Serializable {
 		this.score = 0;
 		this.bombs = new LinkedList<Bomb>();
 		this.score = 0;
+		this.username = this.getUser();
 		loadImage();
 		createAnimation();
 	}
@@ -380,7 +383,7 @@ public class Player extends GameObject implements Serializable {
 	public void setScore(int score) {
 		this.score = score;
 	}
-	
+
 	public void setAction(String action) {
 		this.action = action;
 	}
@@ -407,6 +410,10 @@ public class Player extends GameObject implements Serializable {
 
 	public int getLife() {
 		return this.life;
+	}
+
+	public String getUsername() {
+		return this.username;
 	}
 
 	public int getFirePower() {
