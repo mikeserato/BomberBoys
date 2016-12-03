@@ -9,6 +9,7 @@ import java.util.Random;
 import project.bomberboys.game.blocks.Block;
 import project.bomberboys.game.blocks.HardBlock;
 import project.bomberboys.game.blocks.SoftBlock;
+import project.bomberboys.sockets.Client;
 import project.bomberboys.sockets.Server;
 import project.bomberboys.window.BufferedImageLoader;
 import project.bomberboys.window.SpriteSheet;
@@ -73,6 +74,8 @@ public class Field {
 	
 	public void initField() {
 		
+		System.out.println("Initializing field...");
+		
 		for(int i = 0; i < height; i++) {
 			for(int j = 0; j < width; j++) {
 				int pixel = fieldImage.getRGB(j, i);
@@ -101,15 +104,15 @@ public class Field {
 		game.getPlayers()[game.getIndex()].setSpawnPoints(spawnPoints);
 		
 		if(game.isServer()) {
-			((Server) game.getChatSocket()).broadcast("::Game Start::", "");
-			game.start();
+		} else {
+			((Client) game.getChatSocket()).sendMessage("::Field Created::");
 		}
 	}
 	
 	public void randomizeField() {
 		Random rand = new Random();
 //		int limit = (height * width) - (height * width) / 4;
-		int limit = 200;
+		int limit = 50;
 		
 		for(int i = 0; i < limit;) {
 			int x = rand.nextInt(width);
@@ -123,6 +126,9 @@ public class Field {
 				i++;
 			}
 		}
+		
+		((Server) game.getChatSocket()).broadcast("::Game Start::", "");
+		game.start();
 	}
 
 	public void update() {

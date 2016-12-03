@@ -11,6 +11,7 @@ import java.net.MulticastSocket;
 
 import project.bomberboys.game.Game;
 import project.bomberboys.game.blocks.Block;
+import project.bomberboys.game.blocks.BonusBlock;
 import project.bomberboys.game.blocks.HardBlock;
 import project.bomberboys.game.blocks.SoftBlock;
 import project.bomberboys.game.bombs.Bomb;
@@ -49,7 +50,6 @@ public class Multicast implements Runnable {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream(6400);
 		final ObjectOutputStream oos = new ObjectOutputStream(baos);
 		oos.writeObject(this.object);
-//		System.out.println("sending (" + object.getX() + ", " + object.getY() + ")");
 		final byte[] data = baos.toByteArray();
 
 		final DatagramPacket packet = new DatagramPacket(data, data.length, group, port);
@@ -128,10 +128,13 @@ public class Multicast implements Runnable {
 						Block b = null;
 						if(update.getBlockType() == 0) {
 							b = new SoftBlock(game, x, y, update.getIndex(), true);
-						} else {
+						} else if(update.getBlockType() == 1) {
 							b = new HardBlock(game, x, y, update.getIndex(), true);
+						} else {
+							b = new BonusBlock(game, x, y, update.getIndex(), update.getBonusIndex(), true);
 						}
-
+						game.getGameBoard()[intY][intX] = '#';
+						game.getObjectBoard()[intY][intX] = b;
 						game.getField().getBlocks().add(b);
 					}
 

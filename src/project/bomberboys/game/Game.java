@@ -8,12 +8,14 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
+import java.util.LinkedList;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import project.bomberboys.game.actors.Player;
+import project.bomberboys.game.bombs.Bomb;
 import project.bomberboys.listeners.GameKeyListener;
 import project.bomberboys.sockets.ChatSocket;
 import project.bomberboys.sockets.Server;
@@ -38,6 +40,9 @@ public class Game extends Canvas implements Runnable {
 	private Field field;
 	private JPanel gamePanel;
 	private PlayerStatus statusCanvas;
+	private LinkedList<Bomb> allBombs;
+	
+	private boolean fieldCreated;
 
 	public Game(ChatSocket socket) {
 		this.socket = socket;
@@ -85,9 +90,9 @@ public class Game extends Canvas implements Runnable {
 		System.out.println("creating players");
 		players = new Player[total];
 		this.total = total;
+		player = new Player(this, 1, 1, 0, socket);
 		for(int i = 0; i < this.total; i++) {
 			if(i == index) {
-				player = new Player(this, 1, 1, 0, socket);
 				players[i] = player;
 			} else {
 				players[i] = new Player(this, 1, 1, 0);
@@ -109,6 +114,7 @@ public class Game extends Canvas implements Runnable {
 
 	public void run() {
 
+		allBombs = new LinkedList<Bomb>();
 		this.addKeyListener(new GameKeyListener(player));
 		System.out.println("Game Thread " + index + " started");
 		spawnPlayers();
@@ -274,6 +280,18 @@ public class Game extends Canvas implements Runnable {
 
 	public boolean isServer() {
 		return server;
+	}
+	
+	public LinkedList<Bomb> getAllBombs() {
+		return this.allBombs;
+	}
+	
+	public boolean getFieldCreated() {
+		return this.fieldCreated;
+	}
+	
+	public void setFieldCreated(boolean fieldCreated) {
+		this.fieldCreated = fieldCreated;
 	}
 
 }

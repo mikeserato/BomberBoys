@@ -12,6 +12,7 @@ public class EchoServer extends Thread{
 	private ObjectOutputStream output;
 	private String sender;
 	private int index;
+	private boolean fieldCreated;
 	
 	public EchoServer(Socket clientSocket, Server server, int index) {
 		this.clientSocket = clientSocket;
@@ -47,7 +48,11 @@ public class EchoServer extends Thread{
 					
 				} else if(message.equals("::Connected::")) {
 					this.sender = sender;
+				} else if(message.equals("::Field Created::")) {
+					System.out.println("A field is created!");
+					this.fieldCreated = true;
 				} else {
+			
 					server.showMessage(sender + ": " + message, false);
 					server.broadcast(message, sender);
 				}
@@ -71,6 +76,10 @@ public class EchoServer extends Thread{
 	
 	public String getSender() {
 		return this.sender;
+	}
+	
+	public boolean isFieldCreated() {
+		return this.fieldCreated;
 	}
  
 }

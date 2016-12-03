@@ -9,18 +9,21 @@ public class PlayerPacket extends ObjectPacket {
 	private String username;
 	private float velX, velY;
 	private String action;
+	private int score;
 	
 	public PlayerPacket(String username, float x, float y, int life, int score, int index) {
-		super(x, y, life, score);
+		super(x, y, life);
 		this.index = index;
 		this.username = username;
+		this.score = score;
 	}
 	
 	public void update(float x, float y, int life, int score, float velX, float velY, String action) {
-		super.update(x, y, life, score);
+		super.update(x, y, life);
 		this.velX = velX;
 		this.velY = velY;
 		this.action = action;
+		this.score = score;
 	}
 	
 	public int getIndex() {
@@ -41,6 +44,10 @@ public class PlayerPacket extends ObjectPacket {
 	
 	public String getUsername() {
 		return username;
+	}
+	
+	public int getScore() {
+		return this.score;
 	}
 
 }

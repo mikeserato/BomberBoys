@@ -50,6 +50,7 @@ public class Bomb extends GameObject {
 	
 	private Multicast udpThread;
 	private BombPacket obj;
+	private boolean[] playerCollide;
 	
 	public Bomb(Game game, float x, float y, ChatSocket socket, Player player) {
 		super(game, socket.getUsername(), x, y);
@@ -59,9 +60,7 @@ public class Bomb extends GameObject {
 		} else {
 			this.countDownTimer = System.currentTimeMillis();
 		}
-		
-		int score = 0;
-		obj = new BombPacket(x, y, life, score, game.getIndex(), countDownTimer);
+		obj = new BombPacket(x, y, life, game.getIndex(), countDownTimer);
 		
 		try{
 			this.udpThread = new Multicast(game, obj);
@@ -73,16 +72,18 @@ public class Bomb extends GameObject {
 		this.imageLoader = new BufferedImageLoader();
 		loadBombSprite();
 		loadFireSprite();
+		init();
 	}
 	
 	public Bomb(Game game, float x, float y, Player player, long countDownTimer) {
 		super(game, "", x, y);
 		dummy = true;
 		this.player = player;
-
+		
 		this.imageLoader = new BufferedImageLoader();
 		loadBombSprite();
 		loadFireSprite();
+		init();
 		
 		this.countDownTimer = countDownTimer;
 	}
@@ -137,6 +138,18 @@ public class Bomb extends GameObject {
 		
 	}
 	
+	public void init() {
+		game.getAllBombs().add(this);
+		playerCollide = new boolean[game.getPlayers().length];
+		resetCollision();
+	}
+	
+	public void resetCollision() {
+		for(int i = 0; i < playerCollide.length; i++) {
+			playerCollide[i] = !(game.getPlayers()[i].getBounds().intersects(this.getBounds()));
+		}
+	}
+	
 	public int checkObstacle(int x, int y, char dir, int counter) {
 		
 		if(counter > explosionRange) return 1;
@@ -171,6 +184,7 @@ public class Bomb extends GameObject {
 		} else {
 			if(!exploding) {
 				updateExplosionRange();
+				resetCollision();
 				pulse.animate();
 			} else {
 				fireStreamNorth.animate();
@@ -220,12 +234,11 @@ public class Bomb extends GameObject {
 		case '#':
 		case '!':
 			(game.getObjectBoard()[y][x]).destroy();
+			System.out.println(type);
 			break;
 		case 'o':
 			if(!((Bomb)game.getObjectBoard()[y][x]).isExploding()) {
-//				System.out.println("chain explode");
 				((Bomb)game.getObjectBoard()[y][x]).resetTimer(this.countDownTimer - 500);
-//				((Bomb)game.getObjectBoard()[y][x]).chainExplode();
 			}
 			break;
 		default:
@@ -295,14 +308,19 @@ public class Bomb extends GameObject {
 		player.getBombs().remove(this);
 		game.getGameBoard()[(int) y][(int) x] = ' ';
 		game.getObjectBoard()[(int) y][(int) x] = null;
+		game.getAllBombs().remove(this);
 	}
 	
 	public Rectangle getBounds() {
-		return null;
+		return new Rectangle((int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize() * game.getScale());
 	}
 	
 	public boolean isExploding() {
 		return this.exploding;
+	}
+	
+	public boolean[] getPlayerCollide() {
+		return this.playerCollide;
 	}
 	
 	public void resetTimer(long timer) {

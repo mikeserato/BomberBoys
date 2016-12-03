@@ -41,6 +41,7 @@ public class Player extends GameObject implements Serializable {
 	protected int firePower = 3, bombLimit = 3, boots = 1;
 	protected String bombType = "";
 	protected LinkedList<SpawnPoint> spawnPoints = null;
+	protected LinkedList<Player> enemies = null;
 	protected SpawnPoint sp;
 
 	protected long deathTimer, invulnerableTimer;
@@ -64,7 +65,9 @@ public class Player extends GameObject implements Serializable {
 
 		try {
 			this.udpThread = new Multicast(game, obj);
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		this.bombs = new LinkedList<Bomb>();
 		loadImage();
@@ -229,7 +232,7 @@ public class Player extends GameObject implements Serializable {
 				y += velY;
 				collide();
 				obj.update(x, y, life, score, velX, velY, action);
-
+				
 				udpThread.update(obj);
 
 				broadcast();
@@ -277,6 +280,22 @@ public class Player extends GameObject implements Serializable {
 				this.x = block.getX() + 1;
 			} else if(block.getBounds().intersects(getBoundsRight())) {
 				this.x = block.getX() - 1;
+			}
+		}
+		
+		LinkedList<Bomb> bombs = game.getAllBombs();
+		for(int i = 0; i < bombs.size(); i++) {
+			Bomb bomb = bombs.get(i);
+			if(bomb.getPlayerCollide()[game.getIndex()]) {
+				if(bomb.getBounds().intersects(getBoundsBot())) {
+					this.y = bomb.getY() - 1;
+				} else if(bomb.getBounds().intersects(getBoundsTop())) {
+					this.y = bomb.getY() + 1;
+				} else if(bomb.getBounds().intersects(getBoundsLeft())) {
+					this.x = bomb.getX() + 1;
+				} else if(bomb.getBounds().intersects(getBoundsRight())) {
+					this.x = bomb.getX() - 1;
+				}
 			}
 		}
 	}
@@ -426,6 +445,11 @@ public class Player extends GameObject implements Serializable {
 
 	public int getBoots() {
 		return this.boots;
+	}
+	
+	public void setUser(String username) {
+		this.user = username;
+		this.username = username;
 	}
 
 }

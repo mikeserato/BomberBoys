@@ -12,7 +12,14 @@ public class SoftBlock extends Block {
 	private BufferedImage[] images = new BufferedImage[3];
 
 	public SoftBlock(Game game, float x, float y, int index, boolean dummy) {
-		super(game, x, y, index, 0, dummy);
+		super(game, x, y, index, 0, 0, dummy);
+		this.life = 1;
+		loadImages();
+		burningAnimation = new Animation(game, 15, images);
+	}
+	
+	public SoftBlock(Game game, float x, float y, int index, int bonusIndex, boolean dummy) {
+		super(game, x, y, index, 2, bonusIndex, dummy);
 		this.life = 1;
 		loadImages();
 		burningAnimation = new Animation(game, 15, images);

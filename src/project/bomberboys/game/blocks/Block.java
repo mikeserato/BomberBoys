@@ -9,13 +9,14 @@ import java.io.IOException;
 import project.bomberboys.game.Game;
 import project.bomberboys.game.GameObject;
 import project.bomberboys.sockets.Multicast;
+import project.bomberboys.sockets.datapackets.BlockPacket;
 import project.bomberboys.window.Animation;
 import project.bomberboys.window.BufferedImageLoader;
 
 public class Block extends GameObject {
 	
 	private Multicast udpThread;
-//	private BlockPacket obj;
+	private BlockPacket obj;
 	
 	protected Animation burningAnimation;
 	protected int life, intX, intY, blockType;
@@ -27,26 +28,28 @@ public class Block extends GameObject {
 	protected BufferedImageLoader imageLoader;
 	
 
-	public Block(Game game, float x, float y, int index, int blockType, boolean dummy) {
+	public Block(Game game, float x, float y, int index, int bonusIndex, int blockType, boolean dummy) {
 		super(game, "game", x, y);
 		this.intX = (int)x;
 		this.intY = (int)y;
 		this.game = game;
 		this.index = index;
 		this.blockType = blockType;
-//		this.dummy = dummy;
-		
-//		if(!dummy) {
-//			obj = new BlockPacket(x, y, index, blockType, life, burning, burningTimer);
-//			
-//			try{
-//				this.udpThread = new Multicast(game, obj);
-//			} catch (IOException e) {
-//				
-//			}
-//			
-//			broadcast();
-//		}
+		this.dummy = dummy;
+		if(blockType == 0) {
+			System.out.println(dummy);
+		}
+		if(!dummy && blockType != 1) {
+			obj = new BlockPacket(x, y, index, blockType, life, bonusIndex);
+			
+			try{
+				this.udpThread = new Multicast(game, obj);
+			} catch (IOException e) {
+				
+			}
+			
+			broadcast();
+		}
 		
 		imageLoader = new BufferedImageLoader();
 		loadTerrain();
@@ -57,19 +60,13 @@ public class Block extends GameObject {
 	}
 
 	public void update() {
-		if(!dummy) {
-			if(burning) {
-				burningAnimation.animate();
-				if(System.currentTimeMillis() - burningTimer >= 900) {
-					game.getGameBoard()[intY][intX] = ' ';
-					game.getObjectBoard()[intY][intX] = null;
-					game.getField().getBlocks().remove(this);
-				}
+		if(burning) {
+			burningAnimation.animate();
+			if(System.currentTimeMillis() - burningTimer >= 900) {
+				game.getGameBoard()[intY][intX] = ' ';
+				game.getObjectBoard()[intY][intX] = null;
+				game.getField().getBlocks().remove(this);
 			}
-			
-//			obj.update(life, burning, burningTimer);
-//			udpThread.update(obj);
-//			broadcast();
 		}
 	}
 	
@@ -87,7 +84,7 @@ public class Block extends GameObject {
 	}
 
 	public void destroy() {
-		if(!burning && !dummy) {
+		if(!burning) {
 			life--;
 			if(this.life == 0) {
 				burning = true;

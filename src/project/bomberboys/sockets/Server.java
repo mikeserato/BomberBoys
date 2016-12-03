@@ -124,6 +124,23 @@ public class Server extends ChatSocket {
 		int terrain = rand.nextInt(7) + 1;
 		this.broadcast("::Create Field:: - " + terrain, "");
 		game.createField(terrain);
+		System.out.println(servers.length);
+		
+		boolean allTrue = false;
+		while(!allTrue) {
+			boolean hasFalse = false;
+			for(int i = 0; i < servers.length; i++) {
+				if(!servers[i].isFieldCreated()) {
+					hasFalse = true;
+					break;
+				}
+			}
+			allTrue = !hasFalse;
+			System.out.println(allTrue);
+		}
+		System.out.println("loop broken");
+		game.setFieldCreated(true);
+		game.getField().randomizeField();
 		
 		System.out.println("All players are connected");
 

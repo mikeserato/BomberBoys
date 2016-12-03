@@ -13,7 +13,7 @@ public class HardBlock extends Block{
 	private BufferedImage[] images = new BufferedImage[3];
 	
 	public HardBlock(Game game, float x, float y, int index, boolean dummy) {
-		super(game, x, y, index, 1, dummy);
+		super(game, x, y, index, 0, 1, dummy);
 		this.life = new Random().nextInt(6) + 5;
 		loadImages();
 		burningAnimation = new Animation(game, 15, images);

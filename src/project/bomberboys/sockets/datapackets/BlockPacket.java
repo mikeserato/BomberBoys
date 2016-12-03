@@ -3,14 +3,13 @@ package project.bomberboys.sockets.datapackets;
 public class BlockPacket extends ObjectPacket{
 	private static final long serialVersionUID = 1L;
 	
-	private int index, blockType, life;
-	private boolean burning;
-	private long burningTimer;
+	private int index, blockType, bonusIndex;
 
-	public BlockPacket(float x, float y, int index, int blockType, int life, int score, boolean burning, long burningTimer) {
-		super(x, y, life, score);
+	public BlockPacket(float x, float y, int index, int blockType, int life, int bonusIndex) {
+		super(x, y, life);
 		this.index = index;
 		this.blockType = blockType;
+		this.bonusIndex = bonusIndex;
 	}
 	
 	public int getIndex() {
@@ -21,26 +20,8 @@ public class BlockPacket extends ObjectPacket{
 		return blockType;
 	}
 	
-	public int getLife() {
-		return life;
-	}
-	
-	public int getScore() {
-		return score;
-	}
-	
-	public boolean isBurning() {
-		return burning;
-	}
-	
-	public long getBurningTimer() {
-		return burningTimer;
-	}
-	
-	public void update(int life, boolean burning, long burningTimer) {
-		this.life = life;
-		this.burning = burning;
-		this.burningTimer = burningTimer;
+	public int getBonusIndex() {
+		return bonusIndex;
 	}
 
 }

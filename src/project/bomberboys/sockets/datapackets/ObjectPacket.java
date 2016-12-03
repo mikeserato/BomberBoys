@@ -8,14 +8,12 @@ public class ObjectPacket implements Serializable {
 	protected float x;
 	protected float y;
 	protected int life;
-	protected int score;
 
 
-	public ObjectPacket(float x, float y, int life, int score) {
+	public ObjectPacket(float x, float y, int life) {
 		this.x = x;
 		this.y = y;
 		this.life = life;
-		this.score = score;
 	}
 
 	public float getX() {
@@ -30,15 +28,10 @@ public class ObjectPacket implements Serializable {
 		return this.life;
 	}
 
-	public int getScore() {
-		return this.score;
-	}
-
-	public void update(float x, float y, int life, int score) {
+	public void update(float x, float y, int life) {
 		this.x = x;
 		this.y = y;
 		this.life = life;
-		this.score = score;
 	}
 
 }
