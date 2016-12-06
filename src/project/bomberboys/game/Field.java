@@ -112,7 +112,7 @@ public class Field {
 	public void randomizeField() {
 		Random rand = new Random();
 //		int limit = (height * width) - (height * width) / 4;
-		int limit = 50;
+		int limit = 500;
 		
 		for(int i = 0; i < limit;) {
 			int x = rand.nextInt(width);

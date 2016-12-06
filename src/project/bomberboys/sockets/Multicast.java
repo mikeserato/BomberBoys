@@ -24,10 +24,11 @@ import project.bomberboys.sockets.datapackets.PlayerPacket;
 public class Multicast implements Runnable {
 
 	Game game;
-	MulticastSocket socket;
-	int port = 4445;
-	InetAddress group = InetAddress.getByName("225.0.0.0");
-	ObjectPacket object;
+	private MulticastSocket socket;
+	private int port = 4445;
+	private InetAddress group = InetAddress.getByName("225.0.0.0");
+	private ObjectPacket object;
+	private boolean shutdown = false;
 
 	public Multicast (Game game, ObjectPacket object) throws IOException{
 		this.game = game;
@@ -80,9 +81,17 @@ public class Multicast implements Runnable {
 	public void update(ObjectPacket object) {
 		this.object = object;
 	}
+	
+	public MulticastSocket getSocket(){
+		return this.socket;
+	}
+	
+	public void shutdown(){
+		this.shutdown = true;
+	}
 
 	public void run() {
-		while(true){
+		while(!shutdown){
 			try {
 				ObjectPacket packet = (ObjectPacket)receive();
 

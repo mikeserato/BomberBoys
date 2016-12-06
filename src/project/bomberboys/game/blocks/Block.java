@@ -37,7 +37,7 @@ public class Block extends GameObject {
 		this.blockType = blockType;
 		this.dummy = dummy;
 		if(blockType == 0) {
-			System.out.println(dummy);
+			//System.out.println(dummy);
 		}
 		if(!dummy && blockType != 1) {
 			obj = new BlockPacket(x, y, index, blockType, life, bonusIndex);
@@ -53,6 +53,7 @@ public class Block extends GameObject {
 		
 		imageLoader = new BufferedImageLoader();
 		loadTerrain();
+		
 	}
 	
 	public void loadTerrain() {
@@ -76,6 +77,12 @@ public class Block extends GameObject {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		disconnect();
+	}
+	
+	public void disconnect(){
+		this.udpThread.shutdown();
+		this.udpThread.getSocket().close();	
 	}
 
 	public void render(Graphics g) {
