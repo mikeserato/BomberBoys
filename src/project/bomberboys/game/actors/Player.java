@@ -269,6 +269,37 @@ public class Player extends GameObject implements Serializable {
 			e.printStackTrace();
 		}
 	}
+	
+	public void getBonus(int index) {
+		game.getSoundLoader().play("/sfx/item/get.wav");
+		switch(index) {
+		case 0:
+			if(bombLimit < 9) {
+				bombLimit++;
+			}
+			break;
+		case 1:
+			if(firePower < 25) {
+				firePower++;
+			}
+			break;
+		case 2:
+			if(firePower < 25) {
+				if(firePower + 3 > 25) {
+					firePower = 25;
+				} else {
+					firePower += 3;
+				}
+			}
+			break;
+		case 3:
+			if(boots < 5) {
+				boots++;
+				speed += 0.02f;
+			}
+			break;
+		}
+	}
 
 	public void collide() {
 		LinkedList<Block> blocks = game.getField().getBlocks();
@@ -276,14 +307,8 @@ public class Player extends GameObject implements Serializable {
 		for(int i = 0; i <  blocks.size(); i++) {
 			Block block = blocks.get(i);
 			if(block instanceof BonusBlock && ((BonusBlock) block).getFirstBurn()){
-				if(block.getBounds().intersects(getBoundsBot()) || block.getBounds().intersects(getBoundsTop()) || block.getBounds().intersects(getBoundsLeft()) || block.getBounds().intersects(getBoundsRight())) {
-					if(((BonusBlock) block).getBonusIndex() == 0) this.bombLimit++;
-					if(((BonusBlock) block).getBonusIndex() == 1) this.firePower++;
-					if(((BonusBlock) block).getBonusIndex() == 2) this.firePower+=3;
-					if(((BonusBlock) block).getBonusIndex() == 3){
-						this.boots++;
-						this.speed = this.speed + this.boots/100f;
-					}
+				if(block.getBounds().intersects(getBounds())) {
+					getBonus(((BonusBlock) block).getBonusIndex());
 					game.getGameBoard()[block.getIntY()][block.getIntX()] = ' ';
 					game.getObjectBoard()[block.getIntY()][block.getIntX()] = null;
 					game.getField().getBlocks().remove(block);
