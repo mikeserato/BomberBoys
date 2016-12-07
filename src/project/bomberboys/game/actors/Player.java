@@ -111,7 +111,9 @@ public class Player extends GameObject implements Serializable {
 
 	public void loadImage() {
 		imageLoader = new BufferedImageLoader();
-		sprite = imageLoader.load("/img/player/player" + 1 + ".png/");
+		Random rand = new Random();
+		int x = rand.nextInt(4)+1;
+		sprite = imageLoader.load("/img/player/player" + x + ".png/");
 		invulnerableSprite = imageLoader.load("/img/player/respawnInvulnerable.png/");
 		front	 = new BufferedImage[8];
 		back	 = new BufferedImage[8];
