@@ -275,6 +275,10 @@ public class Player extends GameObject implements Serializable {
 			Block block = blocks.get(i);
 			if(block instanceof BonusBlock && ((BonusBlock) block).getFirstBurn()){
 				if(block.getBounds().intersects(getBoundsBot()) || block.getBounds().intersects(getBoundsTop()) || block.getBounds().intersects(getBoundsLeft()) || block.getBounds().intersects(getBoundsRight())) {
+					if(((BonusBlock) block).getBonusIndex() == 0) this.bombLimit++;
+					if(((BonusBlock) block).getBonusIndex() == 1) this.firePower++;
+					if(((BonusBlock) block).getBonusIndex() == 2) this.firePower+=3;
+					if(((BonusBlock) block).getBonusIndex() == 3) this.boots++;
 					game.getGameBoard()[block.getIntY()][block.getIntX()] = ' ';
 					game.getObjectBoard()[block.getIntY()][block.getIntX()] = null;
 					game.getField().getBlocks().remove(block);
