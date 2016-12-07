@@ -187,8 +187,8 @@ public class Game extends Canvas implements Runnable {
 
 		if(counter == 1) {
 			players[winnerIndex].increaseScore();
-
-			if(players[winnerIndex].getScore() == socket.getMain().getRoundCountTF()) {
+			int roundsToWin = (socket.getMain().getRoundCountTF()/2)+1;
+			if(players[winnerIndex].getScore() == roundsToWin) {
 				JFrame endFrame = new JFrame("End of Game");
 				JOptionPane.showMessageDialog(endFrame, winnerName + " is the winner!");
 				for(int i = 0; i < total; i++) stop();

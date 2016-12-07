@@ -1,19 +1,15 @@
 package project.bomberboys;
 
-import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import project.bomberboys.window.BufferedImageLoader;
 import project.bomberboys.window.Button;
 
 public class MainBoom {
@@ -62,12 +58,15 @@ public class MainBoom {
 
 	private void initServerPanel() {
 		serverPanel = new JPanel(new GridLayout(4, 1));
+		serverPanel.setOpaque(false);
 		JPanel subPanel;
 		JLabel label;
 
 		//top
 		subPanel = new JPanel(new FlowLayout());
+		subPanel.setOpaque(false);
 		label = new JLabel("Number of Players:");
+		label.setForeground(Color.WHITE);
 		subPanel.add(label);
 		playerCountTF = new JTextField(10);
 		playerCountTF.setText("2");
@@ -76,7 +75,9 @@ public class MainBoom {
 
 		//upper mid
 		subPanel = new JPanel(new FlowLayout());
+		subPanel.setOpaque(false);
 		label = new JLabel("Number of Rounds:");
+		label.setForeground(Color.WHITE);
 		subPanel.add(label);
 		roundCountTF = new JTextField(10);
 		roundCountTF.setText("3");
@@ -85,7 +86,9 @@ public class MainBoom {
 
 		//lower mid
 		subPanel = new JPanel(new FlowLayout());
+		subPanel.setOpaque(false);
 		label = new JLabel("Server port:");
+		label.setForeground(Color.WHITE);
 		subPanel.add(label);
 		portTF = new JTextField(10);
 		portTF.setText("8000");
@@ -94,6 +97,7 @@ public class MainBoom {
 
 		//bot
 		subPanel = new JPanel(new FlowLayout());
+		subPanel.setOpaque(false);
 		subPanel.add(createButton("Back", "menu", this, true));
 		subPanel.add(createButton("Start!", "menu", this, true));
 		serverPanel.add(subPanel);
@@ -101,12 +105,15 @@ public class MainBoom {
 
 	private void initClientPanel() {
 		clientPanel = new JPanel(new GridLayout(3, 1));
+		clientPanel.setOpaque(false);
 		JPanel subPanel;
 		JLabel label;
 
 		//top
 		subPanel = new JPanel(new FlowLayout());
+		subPanel.setOpaque(false);
 		label = new JLabel("Server IP address:");
+		label.setForeground(Color.WHITE);
 		subPanel.add(label);
 		ipTF = new JTextField(10);
 		ipTF.setText("localhost");
@@ -115,7 +122,9 @@ public class MainBoom {
 
 		//mid
 		subPanel = new JPanel(new FlowLayout());
+		subPanel.setOpaque(false);
 		label = new JLabel("Server port:");
+		label.setForeground(Color.WHITE);
 		subPanel.add(label);
 		portTF = new JTextField(10);
 		portTF.setText("8000");
@@ -124,9 +133,12 @@ public class MainBoom {
 
 		//bot
 		subPanel = new JPanel(new FlowLayout());
+		subPanel.setOpaque(false);
 		subPanel.add(createButton("Back", "menu", this, true));
 		subPanel.add(createButton("Connect", "menu", this, true));
 		clientPanel.add(subPanel);
+		
+		
 	}
 
 	private void initMainOptionPanel() {

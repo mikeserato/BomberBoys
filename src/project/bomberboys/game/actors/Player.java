@@ -53,7 +53,7 @@ public class Player extends GameObject implements Serializable {
 
 	public Player(Game game, float x, float y, int score, ChatSocket socket) {
 		super(game, socket.getUsername(), x, y);
-		this.life = 1;
+		this.life = 3;
 		this.socket = socket;
 		this.speed = 0.1f;
 		this.chatActive = false;
@@ -77,7 +77,7 @@ public class Player extends GameObject implements Serializable {
 
 	public Player(Game game, float x, float y, int score) {
 		super(game, "", x, y);
-		this.life = 1;
+		this.life = 3;
 		this.alive = true;
 		this.dummy = true;
 		this.score = 0;
@@ -307,17 +307,6 @@ public class Player extends GameObject implements Serializable {
 		for(int i = 0; i <  blocks.size(); i++) {
 			Block block = blocks.get(i);
 			if(block instanceof BonusBlock && ((BonusBlock) block).getFirstBurn()){
-				if(block.getBounds().intersects(getBoundsBot()) || block.getBounds().intersects(getBoundsTop()) || block.getBounds().intersects(getBoundsLeft()) || block.getBounds().intersects(getBoundsRight())) {
-					if(((BonusBlock) block).getBonusIndex() == 0) this.bombLimit++;
-					if(((BonusBlock) block).getBonusIndex() == 1) this.firePower++;
-					if(((BonusBlock) block).getBonusIndex() == 2) this.firePower+=3;
-					if(((BonusBlock) block).getBonusIndex() == 3){
-						if(boots <= 5){
-							this.boots++;
-							this.speed = this.speed + this.boots/100f;
-						}
-					}
-				}
 				if(block.getBounds().intersects(getBounds())) {
 					getBonus(((BonusBlock) block).getBonusIndex());
 					game.getGameBoard()[block.getIntY()][block.getIntX()] = ' ';
@@ -479,7 +468,7 @@ public class Player extends GameObject implements Serializable {
 	}
 
 	public void replenishLife() {
-		this.life = 1;
+		this.life = 3;
 	}
 
 	public int getScore() {
