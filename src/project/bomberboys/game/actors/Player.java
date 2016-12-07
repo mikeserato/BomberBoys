@@ -19,6 +19,7 @@ import project.bomberboys.game.blocks.BonusBlock;
 import project.bomberboys.game.bombs.Bomb;
 import project.bomberboys.sockets.ChatSocket;
 import project.bomberboys.sockets.Multicast;
+import project.bomberboys.sockets.datapackets.BlockPacket;
 import project.bomberboys.sockets.datapackets.PlayerPacket;
 import project.bomberboys.window.Animation;
 import project.bomberboys.window.BufferedImageLoader;
@@ -240,7 +241,7 @@ public class Player extends GameObject implements Serializable {
 
 				broadcast();
 			}
-
+			collide();
 			if(invulnerable) {
 				invulnerableAnimation.animate();
 				if(System.currentTimeMillis() - invulnerableTimer >= 5000) {
@@ -284,6 +285,7 @@ public class Player extends GameObject implements Serializable {
 						this.boots++;
 						this.speed = this.speed + this.boots/100f;
 					}
+	
 					game.getGameBoard()[block.getIntY()][block.getIntX()] = ' ';
 					game.getObjectBoard()[block.getIntY()][block.getIntX()] = null;
 					game.getField().getBlocks().remove(block);
