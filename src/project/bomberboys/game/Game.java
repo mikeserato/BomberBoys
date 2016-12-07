@@ -124,11 +124,6 @@ public class Game extends Canvas implements Runnable {
 		}
 	}
 
-	public void playSound() {
-//		System.out.println("/sfx/temp/sound" + (field.getIndex() - 1) + ".mp3");
-		bgSoundLoader.play("/sfx/bg/sound2.mp3");
-	}
-
 	public void run() {
 
 		allBombs = new LinkedList<Bomb>();
@@ -144,8 +139,6 @@ public class Game extends Canvas implements Runnable {
 		long timer = System.currentTimeMillis();
 		int updates = 0;
 		int frames = 0;
-
-//		playSound();
 
 		while(running) {
 			long now = System.nanoTime();
