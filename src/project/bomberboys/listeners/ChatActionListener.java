@@ -32,7 +32,7 @@ public class ChatActionListener implements ActionListener{
 		if(message.equals("")) {
 			if(isServer) {
 				server.showMessage(message, true);
-				server.broadcast(message, server.getUsername());
+				server.broadcast(message, server.getUsername(), game.getIndex());
 				server.clearChatField();
 			} else {
 				client.showMessage(message, true);

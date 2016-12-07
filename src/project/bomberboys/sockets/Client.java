@@ -93,8 +93,9 @@ public class Client extends ChatSocket implements Runnable{
 				packet = (MessagePacket) input.readObject();
 				message = packet.message();
 				sender = packet.sender();
+				System.out.println("Received: " + message);
 				if(message.equals("QUIT")) {
-					
+					break;
 				} else if(message.equals("::Game Start::") && sender.equals("")) {
 					this.game.start();
 					chatField.setEditable(true);
@@ -103,19 +104,19 @@ public class Client extends ChatSocket implements Runnable{
 					int total = Integer.parseInt(message.replace("::Create Players:: - ", ""));
 					game.createPlayers(total);
 //					showMessage(message, false);
-				} else if(message.contains("::Create Field::")) {
+				} else if(message.contains("::Create Field::") && sender.equals("")) {
 					int terrain= Integer.parseInt(message.replace("::Create Field:: - ", ""));
 					game.createField(terrain);
 				} else if(sender.equals("")) {
 					index = Integer.parseInt(message);
 					game.setIndex(index);
-//					showMessage(message, false);
 				} else {
+					System.out.println("Printing message: " + message);
 					showMessage(sender + ": " + message, false);
 //					server.broadcast(message);
 				}
 			} catch(Exception e) {
-				
+				break;
 			}
 		}
 	}
@@ -141,7 +142,7 @@ public class Client extends ChatSocket implements Runnable{
 	
 	public void sendMessage(String message) {
 		try {
-			MessagePacket packet = new MessagePacket(message, username);
+			MessagePacket packet = new MessagePacket(message, username, index);
 			output.writeObject(packet);
 			output.flush();
 		} catch (IOException e) {

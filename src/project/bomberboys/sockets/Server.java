@@ -47,7 +47,7 @@ public class Server extends ChatSocket {
 				String message = e.getActionCommand();
 				if(!message.equals("")) {
 					showMessage(message, true);
-					broadcast(message, username);
+					broadcast(message, username, index);
 					chatField.setText("");
 				}
 				game.requestFocusInWindow();
@@ -71,10 +71,11 @@ public class Server extends ChatSocket {
 		gameWindow.setVisible(true);
 	}
 
-	public void broadcast(String message, String sender) {
+	public void broadcast(String message, String sender, int index) {
+		System.out.println("Broadcasting: " + message);
 		for(int i = 0; i < playerCount; i++) {
-			if(!sender.equals(servers[i].getSender())) {
-				servers[i].sendMessage(message, sender);
+			if(index != i) {
+				servers[i].sendMessage(message, sender, index);
 			}
 		}
 	}
@@ -117,12 +118,12 @@ public class Server extends ChatSocket {
 		index = playerCount;
 		game.setIndex(index);
 		
-		this.broadcast("::Create Players:: - " + (playerCount + 1), "");
+		this.broadcast("::Create Players:: - " + (playerCount + 1), "", index);
 		game.createPlayers(playerCount + 1);
 		
 		Random rand = new Random();
 		int terrain = rand.nextInt(7) + 1;
-		this.broadcast("::Create Field:: - " + terrain, "");
+		this.broadcast("::Create Field:: - " + terrain, "", index);
 		game.createField(terrain);
 		System.out.println(servers.length);
 		

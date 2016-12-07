@@ -29,7 +29,7 @@ public class EchoServer extends Thread{
 			this.output.flush();
 			System.out.println("Setting up input stream...");
 			this.input = new ObjectInputStream(clientSocket.getInputStream());
-			this.sendMessage(Integer.toString(index), "");
+			this.sendMessage(Integer.toString(index), "", index);
 		} catch(Exception e) {
 			
 		}
@@ -39,35 +39,34 @@ public class EchoServer extends Thread{
 		System.out.println("Thread started!");
 		MessagePacket packet;
 		String message, sender;
+		int index;
 		while(true) {
 			try {
 				packet = (MessagePacket) input.readObject();
 				message = packet.message();
 				sender = packet.sender();
+				index = packet.index();
 				if(message.equals("QUIT")) {
-					
+					sendMessage("QUIT", "", index);
+					break;
 				} else if(message.equals("::Connected::")) {
 					this.sender = sender;
 				} else if(message.equals("::Field Created::")) {
-					System.out.println("A field is created!");
 					this.fieldCreated = true;
 				} else {
-			
 					server.showMessage(sender + ": " + message, false);
-					server.broadcast(message, sender);
+					server.broadcast(message, sender, index);
 				}
 			} catch(Exception e) {
-				
+				break;
 			}
 		}
 	}
 	
-	public void sendMessage(String message, String sender) {
+	public void sendMessage(String message, String sender, int index) {
 		try{
-			MessagePacket packet = new MessagePacket(message, sender);
+			MessagePacket packet = new MessagePacket(message, sender, index);
 			output.writeObject(packet);
-//			String additional = (fromServer) ? "1" : "0";
-//			output.writeObject(additional + ":" + message);
 			output.flush();
 		} catch(Exception e) {
 			
