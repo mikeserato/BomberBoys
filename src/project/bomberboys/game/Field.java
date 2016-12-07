@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.Random;
 
 import project.bomberboys.game.blocks.Block;
+import project.bomberboys.game.blocks.BonusBlock;
 import project.bomberboys.game.blocks.HardBlock;
 import project.bomberboys.game.blocks.SoftBlock;
 import project.bomberboys.sockets.Client;
@@ -113,14 +114,21 @@ public class Field {
 		Random rand = new Random();
 //		int limit = (height * width) - (height * width) / 4;
 		int limit = 500;
+		int powerup_type_count = 4; 
+		float powerup_probability = 0.25f;
 		
 		for(int i = 0; i < limit;) {
 			int x = rand.nextInt(width);
 			int y = rand.nextInt(height);
+			int z = rand.nextInt((int)((powerup_type_count-1)/powerup_probability));
 			
 			if(gameBoard[y][x] == ' ') {
 				gameBoard[y][x] = '#';
-				SoftBlock b = new SoftBlock(game, x, y, index, false);
+				Block b;
+				if(z > 3)
+					b = new SoftBlock(game, x, y, index, false);
+				else
+					b = new BonusBlock(game, x, y, index, z, false);
 				objectBoard[y][x] = b;
 				blocks.add(b);
 				i++;
