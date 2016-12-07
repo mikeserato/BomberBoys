@@ -278,7 +278,10 @@ public class Player extends GameObject implements Serializable {
 					if(((BonusBlock) block).getBonusIndex() == 0) this.bombLimit++;
 					if(((BonusBlock) block).getBonusIndex() == 1) this.firePower++;
 					if(((BonusBlock) block).getBonusIndex() == 2) this.firePower+=3;
-					if(((BonusBlock) block).getBonusIndex() == 3) this.boots++;
+					if(((BonusBlock) block).getBonusIndex() == 3){
+						this.boots++;
+						this.speed = this.speed + this.boots/100f;
+					}
 					game.getGameBoard()[block.getIntY()][block.getIntX()] = ' ';
 					game.getObjectBoard()[block.getIntY()][block.getIntX()] = null;
 					game.getField().getBlocks().remove(block);
@@ -360,6 +363,7 @@ public class Player extends GameObject implements Serializable {
 
 	public void respawn() {
 		this.alive = true;
+		this.resetStats();
 		if(!dummy) {
 			if(spawnPoints == null) {
 				spawnPoints = game.getField().getSpawnPoints();
@@ -380,6 +384,13 @@ public class Player extends GameObject implements Serializable {
 		invulnerableAnimation.restart();
 		bombType = "normal";
 		action = "s";
+	}
+	
+	public void resetStats(){
+		this.speed = 0.1f;
+		this.boots = 1;
+		this.firePower = 3;
+		this.bombLimit = 3;
 	}
 
 	public LinkedList<Bomb> getBombs() {

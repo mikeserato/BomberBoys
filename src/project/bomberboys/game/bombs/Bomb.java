@@ -55,6 +55,7 @@ public class Bomb extends GameObject {
 	public Bomb(Game game, float x, float y, ChatSocket socket, Player player) {
 		super(game, socket.getUsername(), x, y);
 		this.player = player;
+		this.explosionRange = player.getFirePower();
 		if(player.getBombType().equals("remote")) {
 			this.countDownTimer = 0;
 		} else {
