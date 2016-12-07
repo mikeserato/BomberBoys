@@ -117,16 +117,16 @@ public class Server extends ChatSocket {
 		}
 		index = playerCount;
 		game.setIndex(index);
-		
+
 		this.broadcast("::Create Players:: - " + (playerCount + 1), "", index);
 		game.createPlayers(playerCount + 1);
-		
+
 		Random rand = new Random();
 		int terrain = rand.nextInt(7) + 1;
 		this.broadcast("::Create Field:: - " + terrain, "", index);
 		game.createField(terrain);
-		System.out.println(servers.length);
-		
+		//System.out.println(servers.length);
+
 		boolean allTrue = false;
 		while(!allTrue) {
 			boolean hasFalse = false;
@@ -137,12 +137,12 @@ public class Server extends ChatSocket {
 				}
 			}
 			allTrue = !hasFalse;
-			System.out.println(allTrue);
+			//System.out.println(allTrue);
 		}
-		System.out.println("loop broken");
+		//System.out.println("loop broken");
 		game.setFieldCreated(true);
 		game.getField().randomizeField();
-		
+
 		System.out.println("All players are connected");
 
 //		this.broadcast("::Game Start::", "");

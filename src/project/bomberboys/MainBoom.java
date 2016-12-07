@@ -16,12 +16,8 @@ public class MainBoom {
 
 	private JFrame menuWindow;
 	private JPanel mainOptionPanel, serverPanel, serverWaitPanel, clientPanel, clientWaitPanel, errorPanel;
-	//private JPanel bgPanel = new BgPanel();
 	private JTextField playerCountTF, roundCountTF, ipTF, portTF, username;
 	private boolean server;
-	//MyPanel panel;
-    //private BufferedImage img;
-    //private static BufferedImageLoader imageLoader = new BufferedImageLoader();
 
 	public MainBoom() {
 		server = false;
@@ -154,15 +150,6 @@ public class MainBoom {
 
 		mainOptionPanel.setBackground(Color.BLACK);
 		mainOptionPanel.setForeground(Color.WHITE);
-
-        //bgPanel.setLayout(new BorderLayout());
-        //bgPanel.add(mainOptionPanel, BorderLayout.CENTER);
-
-        //FrameTestBase t = new FrameTestBase();
-        //menuWindow.setContentPane(bgPanel);
-        //mainOptionPanel.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        //t.setSize(250, 100);
-        //t.setVisible(true);
 	}
 
 	private void initErrorPanel() {
@@ -178,16 +165,9 @@ public class MainBoom {
 
 	private void initializeMenuWIndow() {
 		menuWindow = new JFrame("Boom!");
-
-		//img = imageLoader.load("/img/interface/titlescreenClean.png");
-		//panel= new MyPanel();
-		//menuWindow.add(panel);
-		//menuWindow.setContentPane(bgPanel);
-
 		menuWindow.getContentPane().setBackground(Color.BLACK);
 		menuWindow.setLayout(new CardLayout());
 		menuWindow.setSize(300, 150);
-		//menuWindow.setSize(666, 450);
 		menuWindow.setResizable(false);
 		menuWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -237,19 +217,4 @@ public class MainBoom {
 			}
 		});
 	}
-
-//	private class MyPanel extends JPanel{
-//        protected void paintComponent(Graphics g) {
-//            super.paintComponent(g);
-//            g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
-//        }
-//    }
-
-//	class BgPanel extends JPanel {
-//		BufferedImage img = imageLoader.load("/img/interface/titlescreenClean.png");
-//	    @Override
-//	    public void paintComponent(Graphics g) {
-//	        g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
-//	    }
-//	}
 }

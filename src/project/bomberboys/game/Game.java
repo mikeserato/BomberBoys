@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 import project.bomberboys.game.actors.Player;
 import project.bomberboys.game.bombs.Bomb;
@@ -29,24 +30,24 @@ public class Game extends Canvas implements Runnable {
 
 	private final int HEIGHT = 400, WIDTH = 400, OBJECTSIZE = 12, scale = 2;
 	private final int boardHeight = 31, boardWidth = 31;
-	
+
 	private JFrame gameFrame;
 	private JPanel gamePanel;
 	private Camera camera;
 	private PlayerStatus statusCanvas;
 	private SoundLoader soundLoader;
 	private BGSoundLoader bgSoundLoader;
-	
+
 	private Player player;
 	private Player players[];
-	
+
 	private ChatSocket socket;
-	
+
 	private char[][] gameBoard;
 	private GameObject[][] objectBoard;
 	private Field field;
 	private LinkedList<Bomb> allBombs;
-	
+
 	private int index, total;
 	private String frameTitle;
 	private boolean running = false, server;
@@ -69,12 +70,12 @@ public class Game extends Canvas implements Runnable {
 
 		c.add(gamePanel, BorderLayout.CENTER);
 
-		System.out.println("Created game instance");
+		//System.out.println("Created game instance");
 
 		camera = new Camera(0, 0, this);
 		soundLoader = new SoundLoader();
 		bgSoundLoader = new BGSoundLoader();
-		
+
 		Dimension fieldSize = Field.checkField();
 		this.gameBoard = new char[fieldSize.height][fieldSize.width];
 		this.objectBoard = new GameObject[fieldSize.height][fieldSize.width];
@@ -122,7 +123,7 @@ public class Game extends Canvas implements Runnable {
 			players[i].respawn();
 		}
 	}
-	
+
 	public void playSound() {
 //		System.out.println("/sfx/temp/sound" + (field.getIndex() - 1) + ".mp3");
 		bgSoundLoader.play("/sfx/bg/sound2.mp3");
@@ -143,7 +144,7 @@ public class Game extends Canvas implements Runnable {
 		long timer = System.currentTimeMillis();
 		int updates = 0;
 		int frames = 0;
-		
+
 //		playSound();
 
 		while(running) {
@@ -190,11 +191,20 @@ public class Game extends Canvas implements Runnable {
 			int roundsToWin = (socket.getMain().getRoundCountTF()/2)+1;
 			if(players[winnerIndex].getScore() == roundsToWin) {
 				JFrame endFrame = new JFrame("End of Game");
-				JOptionPane.showMessageDialog(endFrame, winnerName + " is the winner!");
+				
+				endFrame.getContentPane().setBackground(Color.BLACK);
+				UIManager.put("OptionPane.background", Color.BLACK);
+				UIManager.put("Panel.background", Color.BLACK);
+				UIManager.put("OptionPane.messageForeground", Color.WHITE);
+				JOptionPane.showMessageDialog(endFrame, winnerName + " is the winner!","End of Game",JOptionPane.INFORMATION_MESSAGE);
 				for(int i = 0; i < total; i++) stop();
 			} else {
 				JFrame roundFrame = new JFrame("End of Round");
-				JOptionPane.showMessageDialog(roundFrame, winnerName + " is the winner for this round!");
+				roundFrame.getContentPane().setBackground(Color.BLACK);
+				UIManager.put("OptionPane.background", Color.BLACK);
+				UIManager.put("Panel.background", Color.BLACK);
+				UIManager.put("OptionPane.messageForeground", Color.WHITE);
+				JOptionPane.showMessageDialog(roundFrame, winnerName + " is the winner for this round!","End of Round",JOptionPane.INFORMATION_MESSAGE);
 				for(int i = 0; i < total; i++) players[i].replenishLife();
 			}
 		} else {
@@ -299,23 +309,23 @@ public class Game extends Canvas implements Runnable {
 	public boolean isServer() {
 		return server;
 	}
-	
+
 	public LinkedList<Bomb> getAllBombs() {
 		return this.allBombs;
 	}
-	
+
 	public boolean getFieldCreated() {
 		return this.fieldCreated;
 	}
-	
+
 	public SoundLoader getSoundLoader() {
 		return this.soundLoader;
 	}
-	
+
 	public BGSoundLoader getBGSoundLoader() {
 		return this.bgSoundLoader;
 	}
-	
+
 	public void setFieldCreated(boolean fieldCreated) {
 		this.fieldCreated = fieldCreated;
 	}

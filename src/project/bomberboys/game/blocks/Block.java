@@ -14,10 +14,10 @@ import project.bomberboys.window.Animation;
 import project.bomberboys.window.BufferedImageLoader;
 
 public class Block extends GameObject {
-	
+
 	private Multicast udpThread;
 	private BlockPacket obj;
-	
+
 	protected Animation burningAnimation;
 	protected int life, intX, intY, blockType;
 	protected int index;
@@ -26,7 +26,7 @@ public class Block extends GameObject {
 	protected BufferedImage terrain;
 	protected BufferedImage[] terrainSprites;
 	protected BufferedImageLoader imageLoader;
-	
+
 
 	public Block(Game game, float x, float y, int index, int bonusIndex, int blockType, boolean dummy) {
 		super(game, "game", x, y);
@@ -38,21 +38,21 @@ public class Block extends GameObject {
 		this.dummy = dummy;
 		if(!dummy && blockType != 1) {
 			obj = new BlockPacket(x, y, index, blockType, life, bonusIndex);
-			
+
 			try{
 				this.udpThread = new Multicast(game, obj);
 			} catch (IOException e) {
-				
+
 			}
-			
+
 			broadcast();
 		}
-		
+
 		imageLoader = new BufferedImageLoader();
 		loadTerrain();
-		
+
 	}
-	
+
 	public void loadTerrain() {
 		terrain = imageLoader.load("/img/field/terrain.png/");
 	}
@@ -67,7 +67,7 @@ public class Block extends GameObject {
 			}
 		}
 	}
-	
+
 	public void broadcast() {
 		try {
 			udpThread.broadcast();
@@ -76,10 +76,10 @@ public class Block extends GameObject {
 		}
 		disconnect();
 	}
-	
+
 	public void disconnect(){
 		this.udpThread.shutdown();
-		this.udpThread.getSocket().close();	
+		this.udpThread.getSocket().close();
 	}
 
 	public void render(Graphics g) {
@@ -92,16 +92,16 @@ public class Block extends GameObject {
 			life--;
 			if(this.life == 0) {
 				burning = true;
-				System.out.println(burning);
+				//System.out.println(burning);
 				burningTimer = System.currentTimeMillis();
 			}
 		}
 	}
-	
+
 	public int getBlockType(){
 		return this.blockType;
 	}
-	
+
 	public int getIntY(){
 		return this.intY;
 	}
@@ -109,7 +109,7 @@ public class Block extends GameObject {
 	public int getIntX(){
 		return this.intX;
 	}
-	
+
 	public Rectangle getBounds() {
 		return new Rectangle((int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize() * game.getScale());
 	}

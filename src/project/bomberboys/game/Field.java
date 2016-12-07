@@ -28,19 +28,19 @@ public class Field {
 	private LinkedList<SpawnPoint> spawnPoints;
 	private static BufferedImageLoader loader;
 	private static BufferedImage fieldImage;
-	
-	public Field(Game game, int index) { 
+
+	public Field(Game game, int index) {
 		this.game = game;
 		this.index = index;
 		this.gameBoard = game.getGameBoard();
 		this.objectBoard = game.getObjectBoard();
 		this.blocks = new LinkedList<Block>();
 		this.spawnPoints = new LinkedList<SpawnPoint>();
-		
+
 		terrain = SpriteSheet.grabImage(imageLoader.load("/img/field/terrain" + index + ".png/"), 1, 1, game.getWidth(), game.getHeight());
 		/*if(game.isServer())*/ initField();
 	}
-	
+
 	public static Dimension checkField() {
 		loader = new BufferedImageLoader();
 		fieldImage = loader.load("/img/field/field32.png");
@@ -50,19 +50,19 @@ public class Field {
 			int red = (pixel >> 16) & 0xff;
 			int green = (pixel >> 8) & 0xff;
 			int blue = (pixel) & 0xff;
-			
+
 			if ((red == 0) && (green == 0) && (blue == 0)) {
 				break;
 			}
 		}
-		
+
 		int j;
 		for(j = 0;; j++) {
 			int pixel = fieldImage.getRGB(j, 0);
 			int red = (pixel >> 16) & 0xff;
 			int green = (pixel >> 8) & 0xff;
 			int blue = (pixel) & 0xff;
-			
+
 			if ((red == 0) && (green == 0) && (blue == 0)) {
 				break;
 			}
@@ -72,11 +72,11 @@ public class Field {
 		return(new Dimension(i, j));
 //		initField();
 	}
-	
+
 	public void initField() {
-		
+
 		System.out.println("Initializing field...");
-		
+
 		for(int i = 0; i < height; i++) {
 			for(int j = 0; j < width; j++) {
 				int pixel = fieldImage.getRGB(j, i);
@@ -101,27 +101,27 @@ public class Field {
 				}
 			}
 		}
-		
+
 		game.getPlayers()[game.getIndex()].setSpawnPoints(spawnPoints);
-		
+
 		if(game.isServer()) {
 		} else {
 			((Client) game.getChatSocket()).sendMessage("::Field Created::");
 		}
 	}
-	
+
 	public void randomizeField() {
 		Random rand = new Random();
 //		int limit = (height * width) - (height * width) / 4;
 		int limit = 500;
-		int powerup_type_count = 4; 
+		int powerup_type_count = 4;
 		float powerup_probability = 0.25f;
-		
+
 		for(int i = 0; i < limit;) {
 			int x = rand.nextInt(width);
 			int y = rand.nextInt(height);
 			int z = rand.nextInt((int)((powerup_type_count-1)/powerup_probability));
-			
+
 			if(gameBoard[y][x] == ' ') {
 				gameBoard[y][x] = '#';
 				Block b;
@@ -134,7 +134,7 @@ public class Field {
 				i++;
 			}
 		}
-		
+
 		((Server) game.getChatSocket()).broadcast("::Game Start::", "", game.getIndex());
 		game.start();
 	}
@@ -144,26 +144,26 @@ public class Field {
 			blocks.get(i).update();
 		}
 	}
-	
+
 	public void render(Graphics g) {
 //		g.drawImage(terrain, 0, 0, game.getWidth() * game.getScale(), game.getHeight() * game.getScale(), null);
 		for(int i = 0; i < blocks.size(); i++) {
 			blocks.get(i).render(g);
 		}
 	}
-	
+
 	public LinkedList<Block> getBlocks() {
 		return this.blocks;
 	}
-	
+
 	public LinkedList<SpawnPoint> getSpawnPoints() {
 		return this.spawnPoints;
 	}
-	
+
 	public BufferedImage getTerrain() {
 		return this.terrain;
 	}
-	
+
 	public int getIndex() {
 		return this.index;
 	}
