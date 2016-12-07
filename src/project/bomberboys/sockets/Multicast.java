@@ -55,7 +55,6 @@ public class Multicast implements Runnable {
 
 		final DatagramPacket packet = new DatagramPacket(data, data.length, group, port);
 		socket.send(packet);
-
 	}
 
 	public ObjectPacket receive() throws IOException {

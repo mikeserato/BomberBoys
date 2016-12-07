@@ -312,8 +312,10 @@ public class Player extends GameObject implements Serializable {
 					if(((BonusBlock) block).getBonusIndex() == 1) this.firePower++;
 					if(((BonusBlock) block).getBonusIndex() == 2) this.firePower+=3;
 					if(((BonusBlock) block).getBonusIndex() == 3){
-						this.boots++;
-						this.speed = this.speed + this.boots/100f;
+						if(boots <= 5){
+							this.boots++;
+							this.speed = this.speed + this.boots/100f;
+						}
 					}
 				}
 				if(block.getBounds().intersects(getBounds())) {
