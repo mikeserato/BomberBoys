@@ -13,7 +13,7 @@ import project.bomberboys.sockets.Server;
 import project.bomberboys.window.Button;
 
 public class MouseHandler extends MouseAdapter{
-	
+
 	private MainBoom main;
 	private String type;
 
@@ -21,7 +21,7 @@ public class MouseHandler extends MouseAdapter{
 		this.type = type;
 		this.main = main;
 	}
-	
+
 	public void mouseClicked(MouseEvent e) {
 		if(type.equals("menu")) {
 			Button b = (Button) e.getComponent();
@@ -36,9 +36,6 @@ public class MouseHandler extends MouseAdapter{
 				case "Start as client":
 					cl.show(c, "clientPanel");
 					break;
-				case "Settings":
-					cl.show(c, "settingsPanel");
-					break;
 				case "Back":
 					cl.show(c, "mainOptionPanel");
 					break;
@@ -52,7 +49,7 @@ public class MouseHandler extends MouseAdapter{
 						new Server(main.getPlayerCountTF(), main.getRoundCountTF(), main.getPortTF(), main);
 					}
 					break;
-				
+
 				//Client panel case
 				case "Connect":
 					new Client(main.getIPTF(), main.getPortTF(), main);
@@ -60,7 +57,7 @@ public class MouseHandler extends MouseAdapter{
 				}
 			}
 		} else if(type.equals("game")) {
-			
+
 		}
 	}
 
