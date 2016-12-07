@@ -36,9 +36,6 @@ public class Block extends GameObject {
 		this.index = index;
 		this.blockType = blockType;
 		this.dummy = dummy;
-		if(blockType == 0) {
-			//System.out.println(dummy);
-		}
 		if(!dummy && blockType != 1) {
 			obj = new BlockPacket(x, y, index, blockType, life, bonusIndex);
 			

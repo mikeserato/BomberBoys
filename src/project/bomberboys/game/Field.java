@@ -135,7 +135,7 @@ public class Field {
 			}
 		}
 		
-		((Server) game.getChatSocket()).broadcast("::Game Start::", "");
+		((Server) game.getChatSocket()).broadcast("::Game Start::", "", game.getIndex());
 		game.start();
 	}
 
@@ -162,6 +162,10 @@ public class Field {
 	
 	public BufferedImage getTerrain() {
 		return this.terrain;
+	}
+	
+	public int getIndex() {
+		return this.index;
 	}
 
 }

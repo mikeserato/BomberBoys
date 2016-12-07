@@ -19,7 +19,6 @@ import project.bomberboys.game.blocks.BonusBlock;
 import project.bomberboys.game.bombs.Bomb;
 import project.bomberboys.sockets.ChatSocket;
 import project.bomberboys.sockets.Multicast;
-import project.bomberboys.sockets.datapackets.BlockPacket;
 import project.bomberboys.sockets.datapackets.PlayerPacket;
 import project.bomberboys.window.Animation;
 import project.bomberboys.window.BufferedImageLoader;
@@ -270,6 +269,37 @@ public class Player extends GameObject implements Serializable {
 			e.printStackTrace();
 		}
 	}
+	
+	public void getBonus(int index) {
+		game.getSoundLoader().play("/sfx/item/get.wav");
+		switch(index) {
+		case 0:
+			if(bombLimit < 9) {
+				bombLimit++;
+			}
+			break;
+		case 1:
+			if(firePower < 25) {
+				firePower++;
+			}
+			break;
+		case 2:
+			if(firePower < 25) {
+				if(firePower + 3 > 25) {
+					firePower = 25;
+				} else {
+					firePower += 3;
+				}
+			}
+			break;
+		case 3:
+			if(boots < 5) {
+				boots++;
+				speed += 0.02f;
+			}
+			break;
+		}
+	}
 
 	public void collide() {
 		LinkedList<Block> blocks = game.getField().getBlocks();
@@ -285,7 +315,9 @@ public class Player extends GameObject implements Serializable {
 						this.boots++;
 						this.speed = this.speed + this.boots/100f;
 					}
-	
+				}
+				if(block.getBounds().intersects(getBounds())) {
+					getBonus(((BonusBlock) block).getBonusIndex());
 					game.getGameBoard()[block.getIntY()][block.getIntX()] = ' ';
 					game.getObjectBoard()[block.getIntY()][block.getIntX()] = null;
 					game.getField().getBlocks().remove(block);
@@ -302,7 +334,6 @@ public class Player extends GameObject implements Serializable {
 					this.x = block.getX() - 1;
 				}				
 			}
-
 		}
 		
 		LinkedList<Bomb> bombs = game.getAllBombs();

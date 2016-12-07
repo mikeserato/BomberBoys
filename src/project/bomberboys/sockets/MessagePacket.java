@@ -7,9 +7,11 @@ public class MessagePacket implements Serializable {
 	
 	private String message;
 	private String sender;
-	public MessagePacket(String message, String sender) {
+	private int index;
+	public MessagePacket(String message, String sender, int index) {
 		this.message = message;
 		this.sender = sender;
+		this.index = index;
 	}
 	
 	public String message() {
@@ -18,6 +20,10 @@ public class MessagePacket implements Serializable {
 	
 	public String sender() {
 		return this.sender;
+	}
+	
+	public int index() {
+		return this.index;
 	}
 
 }

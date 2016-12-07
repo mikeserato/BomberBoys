@@ -19,29 +19,37 @@ import project.bomberboys.game.bombs.Bomb;
 import project.bomberboys.listeners.GameKeyListener;
 import project.bomberboys.sockets.ChatSocket;
 import project.bomberboys.sockets.Server;
+import project.bomberboys.window.BGSoundLoader;
 import project.bomberboys.window.Camera;
+import project.bomberboys.window.SoundLoader;
 
 
 public class Game extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
 
 	private final int HEIGHT = 400, WIDTH = 400, OBJECTSIZE = 12, scale = 2;
-	private boolean running = false, server;
-	private int index, total;
+	private final int boardHeight = 31, boardWidth = 31;
+	
+	private JFrame gameFrame;
+	private JPanel gamePanel;
+	private Camera camera;
+	private PlayerStatus statusCanvas;
+	private SoundLoader soundLoader;
+	private BGSoundLoader bgSoundLoader;
+	
 	private Player player;
 	private Player players[];
-	private JFrame gameFrame;
-	private String frameTitle;
+	
 	private ChatSocket socket;
-	private Camera camera;
-	private final int boardHeight = 31, boardWidth = 31;
+	
 	private char[][] gameBoard;
 	private GameObject[][] objectBoard;
 	private Field field;
-	private JPanel gamePanel;
-	private PlayerStatus statusCanvas;
 	private LinkedList<Bomb> allBombs;
 	
+	private int index, total;
+	private String frameTitle;
+	private boolean running = false, server;
 	private boolean fieldCreated;
 
 	public Game(ChatSocket socket) {
@@ -64,6 +72,9 @@ public class Game extends Canvas implements Runnable {
 		System.out.println("Created game instance");
 
 		camera = new Camera(0, 0, this);
+		soundLoader = new SoundLoader();
+		bgSoundLoader = new BGSoundLoader();
+		
 		Dimension fieldSize = Field.checkField();
 		this.gameBoard = new char[fieldSize.height][fieldSize.width];
 		this.objectBoard = new GameObject[fieldSize.height][fieldSize.width];
@@ -111,6 +122,11 @@ public class Game extends Canvas implements Runnable {
 			players[i].respawn();
 		}
 	}
+	
+	public void playSound() {
+//		System.out.println("/sfx/temp/sound" + (field.getIndex() - 1) + ".mp3");
+		bgSoundLoader.play("/sfx/bg/sound2.mp3");
+	}
 
 	public void run() {
 
@@ -127,6 +143,8 @@ public class Game extends Canvas implements Runnable {
 		long timer = System.currentTimeMillis();
 		int updates = 0;
 		int frames = 0;
+		
+//		playSound();
 
 		while(running) {
 			long now = System.nanoTime();
@@ -288,6 +306,14 @@ public class Game extends Canvas implements Runnable {
 	
 	public boolean getFieldCreated() {
 		return this.fieldCreated;
+	}
+	
+	public SoundLoader getSoundLoader() {
+		return this.soundLoader;
+	}
+	
+	public BGSoundLoader getBGSoundLoader() {
+		return this.bgSoundLoader;
 	}
 	
 	public void setFieldCreated(boolean fieldCreated) {

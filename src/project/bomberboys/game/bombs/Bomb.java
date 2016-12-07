@@ -142,6 +142,7 @@ public class Bomb extends GameObject {
 	public void init() {
 		game.getAllBombs().add(this);
 		playerCollide = new boolean[game.getPlayers().length];
+		game.getSoundLoader().play("/sfx/bomb/set.wav");
 		resetCollision();
 	}
 	
@@ -235,7 +236,6 @@ public class Bomb extends GameObject {
 		case '#':
 		case '!':
 			(game.getObjectBoard()[y][x]).destroy();
-			System.out.println(type);
 			break;
 		case 'o':
 			if(!((Bomb)game.getObjectBoard()[y][x]).isExploding()) {
@@ -297,6 +297,7 @@ public class Bomb extends GameObject {
 	
 	public void explode() {
 		if(!exploding) {
+			game.getSoundLoader().play("/sfx/bomb/ex.wav");
 			exploding = true;
 			if(!dummy) this.player.decrementLiveBombs();
 			burnObjects();
