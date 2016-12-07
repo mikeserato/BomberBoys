@@ -6,13 +6,7 @@ import javax.swing.*;
 import project.bomberboys.window.BufferedImageLoader;
 
 import java.awt.event.*;
-import java.awt.image.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
-import java.util.*;
-import java.io.*;
 
 public class Main{
 	private static BufferedImageLoader imageLoader = new BufferedImageLoader();
@@ -28,25 +22,15 @@ public class Main{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		c.setPreferredSize(new Dimension(666, 465));
 
-		BufferedImage startSButton = imageLoader.load("/img/interface/startserver.png");
-		BufferedImage startSButtonHover = imageLoader.load("/img/interface/startserverHover.png");
-		BufferedImage startSButtonActive = imageLoader.load("/img/interface/startserver.png");
+		BufferedImage startSButton = imageLoader.load("/img/interface/start.png");
+		BufferedImage startSButtonHover = imageLoader.load("/img/interface/startHover.png");
+		BufferedImage startSButtonActive = imageLoader.load("/img/interface/start.png");
 
 		JButton startSBackupButton = new JButton(new ImageIcon(startSButton));
 		startSBackupButton.setRolloverIcon(new ImageIcon(startSButtonHover));
 		startSBackupButton.setPressedIcon(new ImageIcon(startSButtonActive));
 		startSBackupButton.setBorder(BorderFactory.createEmptyBorder());
 		startSBackupButton.setFocusable(false);
-
-		BufferedImage startCButton = imageLoader.load("/img/interface/startclient.png");
-		BufferedImage startCButtonHover = imageLoader.load("/img/interface/startclientHover.png");
-		BufferedImage startCButtonActive = imageLoader.load("/img/interface/startclient.png");
-
-		JButton startCBackupButton = new JButton(new ImageIcon(startCButton));
-		startCBackupButton.setRolloverIcon(new ImageIcon(startCButtonHover));
-		startCBackupButton.setPressedIcon(new ImageIcon(startCButtonActive));
-		startCBackupButton.setBorder(BorderFactory.createEmptyBorder());
-		startCBackupButton.setFocusable(false);
 
 		BufferedImage instructButton = imageLoader.load("/img/interface/instructions.png");
 		BufferedImage instructButtonHover = imageLoader.load("/img/interface/instructionsHover.png");
@@ -59,12 +43,11 @@ public class Main{
 		instructBackupButton.setFocusable(false);
 
 		JPanel topPanel = new JPanel();
-		topPanel.setPreferredSize(new Dimension(666,230));
+		topPanel.setPreferredSize(new Dimension(666,270));
 		topPanel.setOpaque(false);
 		JPanel bottomPanel = new JPanel();
 		bottomPanel.setLayout(new FlowLayout());
 		bottomPanel.add(startSBackupButton);
-		bottomPanel.add(startCBackupButton);
 		bottomPanel.add(instructBackupButton);
 		bottomPanel.setOpaque(false);
 
@@ -76,13 +59,82 @@ public class Main{
 			}
 		});
 		
-		startCBackupButton.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				frame.setVisible(false);
-				MainBoom main = new MainBoom();
-				main.init(main);
-			}
-		});
+//		startSBackupButton.addActionListener(new ActionListener(){
+//			public void actionPerformed(ActionEvent e){
+//				frame.setVisible(false);
+//				
+//				final JFrame serverFrame = new JFrame("Server");
+//		 		serverFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		 		BufferedImage servercreen = imageLoader.load("/img/interface/serverClean.png");
+//				
+//		 		serverFrame.setContentPane(new JLabel(new ImageIcon(servercreen)));
+//				
+//		 		BufferedImage startButton = imageLoader.load("/img/interface/start.png");
+//				BufferedImage startButtonHover = imageLoader.load("/img/interface/startHover.png");
+//				BufferedImage startButtonActive = imageLoader.load("/img/interface/start.png");
+//
+//				JButton startBackupButton = new JButton(new ImageIcon(startButton));
+//				startBackupButton.setRolloverIcon(new ImageIcon(startButtonHover));
+//				startBackupButton.setPressedIcon(new ImageIcon(startButtonActive));
+//				startBackupButton.setBorder(BorderFactory.createEmptyBorder());
+//				startBackupButton.setFocusable(false);
+//
+//				BufferedImage backButton = imageLoader.load("/img/interface/back1.png");
+//				BufferedImage backButtonHover = imageLoader.load("/img/interface/back1Hover.png");
+//				BufferedImage backButtonActive = imageLoader.load("/img/interface/back1.png");
+//
+//				JButton backBackupButton = new JButton(new ImageIcon(backButton));
+//				backBackupButton.setRolloverIcon(new ImageIcon(backButtonHover));
+//				backBackupButton.setPressedIcon(new ImageIcon(backButtonActive));
+//				backBackupButton.setBorder(BorderFactory.createEmptyBorder());
+//				backBackupButton.setFocusable(false);
+//
+//				Container serverC = serverFrame.getContentPane();
+//				serverC.setLayout(new BorderLayout());
+//				serverC.setPreferredSize(new Dimension(666, 465));
+//				serverFrame.setVisible(true);
+//				serverFrame.pack();
+//
+//				JPanel serverPanel = new JPanel();
+//				serverPanel.setPreferredSize(new Dimension(700, 130));
+//				
+//				JTextField username = new JTextField(20);
+//				username.setText("Anonymous");
+//				serverPanel.add(username);
+//				
+//				JTextField numPlayers = new JTextField(20);
+//				numPlayers.setText("2");
+//				serverPanel.add(numPlayers);
+//				
+//				JTextField numRounds = new JTextField(20);
+//				numRounds.setText("3");
+//				serverPanel.add(numRounds);
+//				
+//				JTextField serverPort = new JTextField(20);
+//				serverPort.setText("8000");
+//				serverPanel.add(serverPort);
+//				
+//				serverPanel.add(startBackupButton);
+//				serverPanel.add(backBackupButton);
+//				serverPanel.setOpaque(false);
+//				serverC.add(serverPanel, BorderLayout.SOUTH);
+//
+//				startBackupButton.addActionListener(new ActionListener(){
+//					public void actionPerformed(ActionEvent e){
+//						serverFrame.setVisible(false);
+//						MainBoom main = new MainBoom();
+//						main.init(main);
+//					}
+//				});		
+//				
+//				backBackupButton.addActionListener(new ActionListener(){
+//					public void actionPerformed(ActionEvent e){
+//						serverFrame.setVisible(false);
+//						frame.setVisible(true);
+//					}
+//				});		
+//			}
+//		});
 
 		instructBackupButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
@@ -125,63 +177,8 @@ public class Main{
 			}
 		});
 
-		// startSBackupButton.addActionListener(new ActionListener(){
-		// 	public void actionPerformed(ActionEvent e){
-		//
-		// 		frame.setVisible(false);
-		//
-		// 		final JFrame serverFrame = new JFrame("Server");
-		// 		serverFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		// 		serverFrame.setContentPane(new JLabel(new ImageIcon("/img/interface/serverClean.png")));
-		//
-		// 		try{
-		// 			BufferedImage startButton = ImageIO.read(new File("/img/interface/start.png"));
-		// 			BufferedImage startButtonHover = ImageIO.read(new File("/img/interface/startHover.png"));
-		// 			BufferedImage startButtonActive = ImageIO.read(new File("/img/interface/start.png"));
-		//
-		// 			JButton startBackupButton = new JButton(new ImageIcon(startButton));
-		// 			startBackupButton.setRolloverIcon(new ImageIcon(startButtonHover));
-		// 			startBackupButton.setPressedIcon(new ImageIcon(startButtonActive));
-		// 			startBackupButton.setBorder(BorderFactory.createEmptyBorder());
-		// 			startBackupButton.setFocusable(false);
-		//
-		// 			BufferedImage backButton = ImageIO.read(new File("/img/interface/back1.png"));
-		// 			BufferedImage backButtonHover = ImageIO.read(new File("/img/interface/backHover1.png"));
-		// 			BufferedImage backButtonActive = ImageIO.read(new File("/img/interface/back1.png"));
-		//
-		// 			JButton backBackupButton = new JButton(new ImageIcon(backButton));
-		// 			backBackupButton.setRolloverIcon(new ImageIcon(backButtonHover));
-		// 			backBackupButton.setPressedIcon(new ImageIcon(backButtonActive));
-		// 			backBackupButton.setBorder(BorderFactory.createEmptyBorder());
-		// 			backBackupButton.setFocusable(false);
-		//
-		// 			Container serverC = serverFrame.getContentPane();
-		// 			serverC.setLayout(new BorderLayout());
-		// 			serverC.setPreferredSize(new Dimension(666, 465));
-		// 			serverFrame.setVisible(true);
-		// 			serverFrame.pack();
-		//
-		// 			JPanel serverPanel = new JPanel();
-		// 			serverPanel.setPreferredSize(new Dimension(700, 130));
-		// 			serverPanel.add(startBackupButton);
-		// 			serverPanel.add(backBackupButton);
-		// 			serverPanel.setOpaque(false);
-		// 			serverC.add(serverPanel, BorderLayout.SOUTH);
-		//
-		// 			backBackupButton.addActionListener(new ActionListener(){
-		// 				public void actionPerformed(ActionEvent e){
-		// 					serverFrame.setVisible(false);
-		// 					frame.setVisible(true);
-		// 				}
-		// 			});
-		//
-		// 		}
-		// 		catch(IOException ae){}
-		// 	}
-		// });
-
 		c.add(topPanel, BorderLayout.NORTH);
-    c.add(bottomPanel, BorderLayout.CENTER);
+		c.add(bottomPanel, BorderLayout.CENTER);
 		frame.setResizable(false);
 		frame.pack();
 		frame.setVisible(true);

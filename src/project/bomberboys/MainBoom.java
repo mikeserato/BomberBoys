@@ -2,13 +2,12 @@ package project.bomberboys;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Container;
-import java.awt.Dimension;
+import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,10 +20,13 @@ public class MainBoom {
 
 	private JFrame menuWindow;
 	private JPanel mainOptionPanel, serverPanel, serverWaitPanel, clientPanel, clientWaitPanel, errorPanel;
+	//private JPanel bgPanel = new BgPanel();
 	private JTextField playerCountTF, roundCountTF, ipTF, portTF, username;
 	private boolean server;
-	private static BufferedImageLoader imageLoader = new BufferedImageLoader();
-	
+	//MyPanel panel;
+    //private BufferedImage img;
+    //private static BufferedImageLoader imageLoader = new BufferedImageLoader();
+
 	public MainBoom() {
 		server = false;
 		initializeMenuWIndow();
@@ -32,20 +34,12 @@ public class MainBoom {
 		display();
 	}
 
-	public void display() {		
+	public void display() {
 		menuWindow.setLocationRelativeTo(null);
 		menuWindow.setVisible(true);
 	}
 
 	private void initializeContents() {
-		BufferedImage titlescreen = imageLoader.load("/img/interface/titlescreenClean.png");
-	
-//		menuWindow.setContentPane(new JLabel(new ImageIcon(titlescreen)));
-//		final Container c = menuWindow.getContentPane();
-//		c.setLayout(new BorderLayout());
-//		menuWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		c.setPreferredSize(new Dimension(666, 465));
-		
 		initMainOptionPanel();
 		menuWindow.add(mainOptionPanel, "mainOptionPanel");
 		initServerPanel();
@@ -70,14 +64,6 @@ public class MainBoom {
 		serverPanel = new JPanel(new GridLayout(4, 1));
 		JPanel subPanel;
 		JLabel label;
-
-		// subPanel = new JPanel(new FlowLayout());
-		// label = new JLabel("Name:");
-		// subPanel.add(label);
-		// username = new JTextField(20);
-		// username.setText("Anonymous");
-		// subPanel.add(username);
-		// serverPanel.add(subPanel);
 
 		//top
 		subPanel = new JPanel(new FlowLayout());
@@ -118,16 +104,6 @@ public class MainBoom {
 		JPanel subPanel;
 		JLabel label;
 
-		// if(!isServer()) {
-		// 	subPanel = new JPanel(new FlowLayout());
-		// 	label = new JLabel("Name:");
-		// 	subPanel.add(label);
-		// 	username = new JTextField(20);
-		// 	username.setText("Anonymous");
-		// 	subPanel.add(username);
-		// 	clientPanel.add(subPanel);
-		// }
-
 		//top
 		subPanel = new JPanel(new FlowLayout());
 		label = new JLabel("Server IP address:");
@@ -155,6 +131,7 @@ public class MainBoom {
 
 	private void initMainOptionPanel() {
 		mainOptionPanel = new JPanel();
+		mainOptionPanel.setOpaque(false);
 		mainOptionPanel.setLayout(new FlowLayout());
 		mainOptionPanel.add(createButton("Start as server", "menu", this, true));
 		mainOptionPanel.add(createButton("Start as client", "menu", this, true));
@@ -162,6 +139,18 @@ public class MainBoom {
 		username = new JTextField(20);
 		username.setText("Anonymous");
 		mainOptionPanel.add(username);
+
+		mainOptionPanel.setBackground(Color.BLACK);
+		mainOptionPanel.setForeground(Color.WHITE);
+
+        //bgPanel.setLayout(new BorderLayout());
+        //bgPanel.add(mainOptionPanel, BorderLayout.CENTER);
+
+        //FrameTestBase t = new FrameTestBase();
+        //menuWindow.setContentPane(bgPanel);
+        //mainOptionPanel.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        //t.setSize(250, 100);
+        //t.setVisible(true);
 	}
 
 	private void initErrorPanel() {
@@ -177,16 +166,27 @@ public class MainBoom {
 
 	private void initializeMenuWIndow() {
 		menuWindow = new JFrame("Boom!");
+
+		//img = imageLoader.load("/img/interface/titlescreenClean.png");
+		//panel= new MyPanel();
+		//menuWindow.add(panel);
+		//menuWindow.setContentPane(bgPanel);
+
+		menuWindow.getContentPane().setBackground(Color.BLACK);
 		menuWindow.setLayout(new CardLayout());
-		menuWindow.setSize(666, 450);
+		menuWindow.setSize(300, 150);
+		//menuWindow.setSize(666, 450);
 		menuWindow.setResizable(false);
 		menuWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 	}
 
 	private Button createButton(String text, String type, MainBoom main, boolean enabled) {
 		Button button = new Button(type, main);
 		button.setText(text);
 		button.setEnabled(enabled);
+		button.setBackground(Color.RED);
+		button.setForeground(Color.WHITE);
 		return button;
 	}
 
@@ -219,7 +219,6 @@ public class MainBoom {
 	}
 
 	public void init(MainBoom main) {
-		//final MainBoom main = new MainBoom();
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				main.display();	//constantly checks for the display of the bomber man display
@@ -227,4 +226,18 @@ public class MainBoom {
 		});
 	}
 
+//	private class MyPanel extends JPanel{
+//        protected void paintComponent(Graphics g) {
+//            super.paintComponent(g);
+//            g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
+//        }
+//    }
+
+//	class BgPanel extends JPanel {
+//		BufferedImage img = imageLoader.load("/img/interface/titlescreenClean.png");
+//	    @Override
+//	    public void paintComponent(Graphics g) {
+//	        g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
+//	    }
+//	}
 }
