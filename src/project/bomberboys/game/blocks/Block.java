@@ -100,7 +100,19 @@ public class Block extends GameObject {
 			}
 		}
 	}
+	
+	public int getBlockType(){
+		return this.blockType;
+	}
+	
+	public int getIntY(){
+		return this.intY;
+	}
 
+	public int getIntX(){
+		return this.intX;
+	}
+	
 	public Rectangle getBounds() {
 		return new Rectangle((int) (x * game.getObjectSize() * game.getScale()), (int) (y * game.getObjectSize() * game.getScale()), game.getObjectSize() * game.getScale(), game.getObjectSize() * game.getScale());
 	}

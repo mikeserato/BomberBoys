@@ -15,6 +15,7 @@ import project.bomberboys.game.Game;
 import project.bomberboys.game.GameObject;
 import project.bomberboys.game.SpawnPoint;
 import project.bomberboys.game.blocks.Block;
+import project.bomberboys.game.blocks.BonusBlock;
 import project.bomberboys.game.bombs.Bomb;
 import project.bomberboys.sockets.ChatSocket;
 import project.bomberboys.sockets.Multicast;
@@ -272,15 +273,25 @@ public class Player extends GameObject implements Serializable {
 
 		for(int i = 0; i <  blocks.size(); i++) {
 			Block block = blocks.get(i);
-			if(block.getBounds().intersects(getBoundsBot())) {
-				this.y = block.getY() - 1;
-			} else if(block.getBounds().intersects(getBoundsTop())) {
-				this.y = block.getY() + 1;
-			} else if(block.getBounds().intersects(getBoundsLeft())) {
-				this.x = block.getX() + 1;
-			} else if(block.getBounds().intersects(getBoundsRight())) {
-				this.x = block.getX() - 1;
+			if(block instanceof BonusBlock && ((BonusBlock) block).getFirstBurn()){
+				if(block.getBounds().intersects(getBoundsBot()) || block.getBounds().intersects(getBoundsTop()) || block.getBounds().intersects(getBoundsLeft()) || block.getBounds().intersects(getBoundsRight())) {
+					game.getGameBoard()[block.getIntY()][block.getIntX()] = ' ';
+					game.getObjectBoard()[block.getIntY()][block.getIntX()] = null;
+					game.getField().getBlocks().remove(block);
+				}				
 			}
+			else{
+				if(block.getBounds().intersects(getBoundsBot())) {
+					this.y = block.getY() - 1;
+				} else if(block.getBounds().intersects(getBoundsTop())) {
+					this.y = block.getY() + 1;
+				} else if(block.getBounds().intersects(getBoundsLeft())) {
+					this.x = block.getX() + 1;
+				} else if(block.getBounds().intersects(getBoundsRight())) {
+					this.x = block.getX() - 1;
+				}				
+			}
+
 		}
 		
 		LinkedList<Bomb> bombs = game.getAllBombs();

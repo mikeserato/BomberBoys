@@ -10,14 +10,12 @@ import project.bomberboys.window.SpriteSheet;
 public class BonusBlock extends SoftBlock {
 	
 	private boolean firstBurn;
-	private int type;
 	protected BufferedImage bonus;
 	protected BufferedImage bonusSpriteSheet = imageLoader.load("/img/object/bonus.png");
 
 	public BonusBlock(Game game, float x, float y, int index, int bonusIndex, boolean dummy) {
 		super(game, x, y, index, bonusIndex, dummy);
-		this.type = bonusIndex;
-		this.bonus = SpriteSheet.grabImage(bonusSpriteSheet, 1, type + 1, 32, 32);
+		this.bonus = SpriteSheet.grabImage(bonusSpriteSheet, 1, bonusIndex + 1, 32, 32);
 	}
 
 	@Override
@@ -46,6 +44,10 @@ public class BonusBlock extends SoftBlock {
 			super.destroy();
 			firstBurn = true;
 		}
+	}
+	
+	public boolean getFirstBurn(){
+		return this.firstBurn;
 	}
 
 	@Override
